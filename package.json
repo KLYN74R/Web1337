@@ -1,0 +1,19 @@
+{
+  "name": "web1337",
+  "version": "1.0.0",
+  "description": "A gateway for amazing Web1337 by KLYNTAR",
+  "type": "module",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KLYN74R/Web1337.git"
+  },
+  "author": "KlyntarTeam",
+  "license": "Apache-2.0",
+  "scripts": {},
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/KLYN74R/KlyntarCore/issues"
+  },
+  "homepage": "https://github.com/KLYN74R/Web1337#readme"
+}
