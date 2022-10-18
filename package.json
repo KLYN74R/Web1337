@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/KLYN74R/KlyntarCore/issues"
   },
-  "homepage": "https://github.com/KLYN74R/Web1337#readme"
+  "homepage": "https://github.com/KLYN74R/Web1337#readme",
+  "dependencies": {
+    "node-fetch": "^3.2.10",
+    "web3": "^1.8.0"
+  }
 }
