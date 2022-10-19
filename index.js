@@ -32,7 +32,7 @@ export default class {
     }
 
 
-    REQUEST_TO_NODE=url=>{
+    GET_REQUEST_TO_NODE=url=>{
 
         let nodeUrl = this.symbiotes.get(this.currentSymbiote)
 
@@ -46,27 +46,84 @@ export default class {
 
     }
 
+
+    POST_REQUEST_TO_NODE=(url,payload)=>{
+
+        let nodeUrl = this.symbiotes.get(this.currentSymbiote)
+
+        return fetch(nodeUrl+url,{
+
+            method:'POST',
+            body:JSON.stringify(payload)
+
+        }).then(r=>r.json()).catch(e=>{
+
+            console.log('_________ ERROR _________')
+
+            console.error(e)
+
+        })
+
+    }
+
+    
     //____________________________ GENERAL LOGIC _____________________________
 
-    getGeneralInfo=()=>this.REQUEST_TO_NODE('/info')
+    getGeneralInfo=()=>this.GET_REQUEST_TO_NODE('/info')
 
-    getCurrentQuorum=()=>this.REQUEST_TO_NODE('/getquorum')
+    getCurrentQuorum=()=>this.GET_REQUEST_TO_NODE('/getquorum')
     
-    getBlock=blockID=>this.REQUEST_TO_NODE('/block/'+blockID)
+    getBlock=blockID=>this.GET_REQUEST_TO_NODE('/block/'+blockID)
 
-    getValidators=()=>this.REQUEST_TO_NODE('/getvalidators')
+    getValidators=()=>this.GET_REQUEST_TO_NODE('/getvalidators')
 
-    getAccount=accountID=>this.REQUEST_TO_NODE('/account'+accountID)
+    getAccount=accountID=>this.GET_REQUEST_TO_NODE('/account/'+accountID)
 
-    getCommitments=(blockID,blockHash)=>this.REQUEST_TO_NODE('/getcommitments/'+`${blockID}:${blockHash}`)
+    getCommitments=(blockID,blockHash)=>this.GET_REQUEST_TO_NODE('/getcommitments/'+`${blockID}:${blockHash}`)
 
-    getSuperFinalization=(blockID,blockHash)=>this.REQUEST_TO_NODE('/getsuperfinalization/'+`${blockID}:${blockHash}`)
+    getSuperFinalization=(blockID,blockHash)=>this.GET_REQUEST_TO_NODE('/getsuperfinalization/'+`${blockID}:${blockHash}`)
 
     getEvent=eventID=>{}
 
+
+    getEventTemplate=(workflowVersion,creator,eventType,nonce,fee,payload)=>{
+
+        return {
+
+            v:workflowVersion,
+            c:creator,
+            t:eventType,
+            n:nonce,
+            f:fee,
+            p:payload
+
+        }
+
+    }
+
+
+    //Initial sig types
+
+    createDefaultEvent=async(workflowVersion,creator,eventType,nonce,fee,payload,ed25519Base64EncodedPrivateKey)=>{
+
+        let eventTemplate = this.getEventTemplate(workflowVersion,creator,eventType,nonce,fee,payload)
+
+        eventTemplate.p.t='D'
+
+        eventTemplate.s = await SIG()//TODO
+
+    }
+
+    createThresholdSigEvent=()=>{}
+
+    createMultisigEvent=()=>{}
+
+    createPostQuantumEvent=()=>{}
+
+
     //____________________________ CONTRACTS LOGIC ____________________________
 
-    getContractState=contractID=>this.REQUEST_TO_NODE('/account'+contractID)
+    getContractState=contractID=>this.GET_REQUEST_TO_NODE('/account'+contractID)
 
     callContract=params=>{}
 
