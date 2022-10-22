@@ -71,17 +71,17 @@ export default class {
 
     getGeneralInfo=()=>this.GET_REQUEST_TO_NODE('/info')
 
-    getCurrentQuorum=()=>this.GET_REQUEST_TO_NODE('/getquorum')
+    getCurrentQuorum=()=>this.GET_REQUEST_TO_NODE('/get_quorum')
     
     getBlock=blockID=>this.GET_REQUEST_TO_NODE('/block/'+blockID)
 
-    getValidators=()=>this.GET_REQUEST_TO_NODE('/getvalidators')
+    getValidators=()=>this.GET_REQUEST_TO_NODE('/get_validators')
 
     getAccount=accountID=>this.GET_REQUEST_TO_NODE('/account/'+accountID)
 
-    getCommitments=(blockID,blockHash)=>this.GET_REQUEST_TO_NODE('/getcommitments/'+`${blockID}:${blockHash}`)
+    getCommitments=(blockID,blockHash)=>this.GET_REQUEST_TO_NODE('/get_commitments/'+`${blockID}:${blockHash}`)
 
-    getSuperFinalization=(blockID,blockHash)=>this.GET_REQUEST_TO_NODE('/getsuperfinalization/'+`${blockID}:${blockHash}`)
+    getSuperFinalization=(blockID,blockHash)=>this.GET_REQUEST_TO_NODE('/get_super_finalization/'+`${blockID}:${blockHash}`)
 
     getEvent=eventID=>{}
 
