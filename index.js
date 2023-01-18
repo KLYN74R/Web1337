@@ -116,23 +116,41 @@ export default class {
     }
 
 
-    //Initial sig types
+    // Transactions. Default, Multisig, Threshold, Post-quantum
 
-    createDefaultEvent=async(workflowVersion,creator,eventType,nonce,fee,payload,ed25519Base64EncodedPrivateKey)=>{
+    createDefaultEvent=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
 
-        let eventTemplate = this.getEventTemplate(workflowVersion,creator,eventType,nonce,fee,payload)
-
-        eventTemplate.p.t='D'
-
-        eventTemplate.s = await SIG()//TODO
 
     }
 
-    createThresholdSigEvent=()=>{}
+    createMultisigEvent=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
 
-    createMultisigEvent=()=>{}
 
-    createPostQuantumEvent=()=>{}
+
+    }
+
+    createThresholdSigEvent=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
+
+
+    }
+
+    createPostQuantumEvent=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
+
+
+
+    }
+
+    //___________________________ SPECIAL OPERATIONS __________________________
+
+    createSpecialOperation=async()=>{}
+
+    sendSpecialOperation=async()=>{}
+
+    //_____________________________ STAKING LOGIC _____________________________
+
+    stakeToPool=async()=>{}
+
+    unstakefromPool=async()=>{}
 
 
     //____________________________ CONTRACTS LOGIC ____________________________
