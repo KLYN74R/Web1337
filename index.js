@@ -67,23 +67,37 @@ export default class {
     }
 
     
-    //____________________________ GENERAL LOGIC _____________________________
+    //____________________________ API _____________________________
 
-    getGeneralInfo=()=>this.GET_REQUEST_TO_NODE('/info')
+    // General info & stats
+    getGeneralInfoAboutKLYInfrastructure=()=>this.GET_REQUEST_TO_NODE('/get_my_info')
 
-    getCurrentQuorum=()=>this.GET_REQUEST_TO_NODE('/get_quorum')
+    getCurrentCheckpoint=()=>this.GET_REQUEST_TO_NODE('/get_quorum')
+
+    getPayloadForCheckpointByHash=hash=>this.GET_REQUEST_TO_NODE('/get_payload_for_checkpoint/'+hash)
     
-    getBlock=blockID=>this.GET_REQUEST_TO_NODE('/block/'+blockID)
+    getSyncState=()=>this.GET_REQUEST_TO_NODE('/get_sync_state')
 
-    getValidators=()=>this.GET_REQUEST_TO_NODE('/get_validators')
+    getSymbioteInfo=()=>this.GET_REQUEST_TO_NODE('/get_symbiote_info')
 
+
+    // Block API
+    getBlockByBlockID=blockID=>this.GET_REQUEST_TO_NODE('/block/'+blockID)
+
+    getBlockByRID=rid=>this.GET_REQUEST_TO_NODE('/get_block_by_rid/'+rid)
+
+    
+    // Account API
     getAccount=accountID=>this.GET_REQUEST_TO_NODE('/account/'+accountID)
 
-    getCommitments=(blockID,blockHash)=>this.GET_REQUEST_TO_NODE('/get_commitments/'+`${blockID}:${blockHash}`)
 
-    getSuperFinalization=(blockID,blockHash)=>this.GET_REQUEST_TO_NODE('/get_super_finalization/'+`${blockID}:${blockHash}`)
+    // Consensus-related API
+    getSuperFinalizationProofForBlock=(blockID,blockHash)=>this.GET_REQUEST_TO_NODE('/get_super_finalization/'+blockID+blockHash)
 
-    getEvent=eventID=>{}
+
+
+    // Events (txs,contract calls,etc) API
+    getEventReceiptById=eventID=>this.GET_REQUEST_TO_NODE('/get_event_receipt/'+eventID)
 
 
     getEventTemplate=(workflowVersion,creator,eventType,nonce,fee,payload)=>{
@@ -123,13 +137,14 @@ export default class {
 
     //____________________________ CONTRACTS LOGIC ____________________________
 
-    getContractState=contractID=>this.GET_REQUEST_TO_NODE('/account'+contractID)
+    getContractMetadata=contractID=>this.GET_REQUEST_TO_NODE('/account/'+contractID)
 
-    callContract=params=>{}
+    getContractStorage=(contractID,storageName)=>this.GET_REQUEST_TO_NODE('/account/'+contractID+'_STORAGE_'+storageName)
+
+    callContract=(contractID,method,params,injects)=>{}
 
     deployContractForKLYVM=(bytecode,callMap)=>{}
 
-    deployContractForEVM=(bytecode,callMap)=>{}
 
     //____________________________ SERVICES LOGIC ____________________________
 
@@ -147,7 +162,6 @@ export default class {
     addHostchain=(hostchainTicker,hostchainURL)=>this.hostchains.get(hostchainTicker,hostchainURL)
 
     changeCurrentSymbiote=symbioteID=>this.currentSymbiote=symbioteID
-
 
 
 }
