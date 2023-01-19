@@ -6,18 +6,46 @@ Only general API & functionality present here. We'll extend abilities via module
 */
 
 
+import tbls from './crypto_primitives/threshold/tbls.js'
+import crypto from './crypto_primitives/crypto.js'
+import bls from './crypto_primitives/bls.js'
+import {hash} from 'blake3-wasm'
 import fetch from 'node-fetch'
+
+
 
 // import WS from 'websocket' //https://github.com/theturtle32/WebSocket-Node
 
 
+
+const TX_TYPES = {
+
+    TX:'TX', // default address <=> address tx
+    CONTRACT_DEPLOY:'CONTRACT_DEPLOY',
+    CONTRACT_CALL:'CONTRACT_CALL',
+    EVM_CALL:'EVM_CALL',
+    MIGRATE_BETWEEN_ENV:'MIGRATE_BETWEEN_ENV'
+
+}
+
+const SIG_TYPES = {
+    
+    DEFAULT:'D',                    // Default ed25519
+    TBLS:'T',                       // TBLS(threshold sig)
+    POST_QUANTUM_DIL:'P/D',         // Post-quantum Dilithium(2/3/5,2 used by default)
+    POST_QUANTUM_BLISS:'P/B',       // Post-quantum BLISS
+    MULTISIG:'M'                    // Multisig BLS
+
+}
+
+
 export default class {
 
-    constructor(symbioteID,nodeURL,proxy,hostChainTicker,hostchainNodeURL){
+    constructor(symbioteID,workflowVersion,nodeURL,proxy,hostChainTicker,hostchainNodeURL){
 
         this.proxy=proxy //for TOR/I2P connections
 
-        this.symbiotes = new Map() //symbioteID => nodeURL
+        this.symbiotes = new Map() //symbioteID => {nodeURL,workflowVersion}
 
         this.hostchains = new Map() //ticker => endpoint(RPC,websocket,etc.)
 
@@ -25,18 +53,21 @@ export default class {
         //Set the initial values
         this.currentSymbiote = symbioteID
 
-        this.symbiotes.set(symbioteID,nodeURL)
+        this.symbiotes.set(symbioteID,{nodeURL,workflowVersion})
 
         this.hostchains.set(hostChainTicker,hostchainNodeURL)
 
     }
 
 
+    BLAKE3=v=>hash(v).toString('hex')
+
+
     GET_REQUEST_TO_NODE=url=>{
 
-        let nodeUrl = this.symbiotes.get(this.currentSymbiote)
+        let {nodeURL} = this.symbiotes.get(this.currentSymbiote)
 
-        return fetch(nodeUrl+url).then(r=>r.json()).catch(e=>{
+        return fetch(nodeURL+url).then(r=>r.json()).catch(e=>{
 
             console.log('_________ ERROR _________')
 
@@ -49,9 +80,9 @@ export default class {
 
     POST_REQUEST_TO_NODE=(url,payload)=>{
 
-        let nodeUrl = this.symbiotes.get(this.currentSymbiote)
+        let {nodeURL} = this.symbiotes.get(this.currentSymbiote)
 
-        return fetch(nodeUrl+url,{
+        return fetch(nodeURL+url,{
 
             method:'POST',
             body:JSON.stringify(payload)
@@ -118,27 +149,149 @@ export default class {
 
     // Transactions. Default, Multisig, Threshold, Post-quantum
 
-    createDefaultEvent=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
+    createDefaultTransaction=async(yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>{
+
+        nonce ??= this.getAccount(yourAddress).then(account=>account.nonce).catch(_=>false)
+
+
+        let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
+    
+        let payload={
+
+            type:SIG_TYPES.DEFAULT,
+
+            to:recipient,
+
+            amount:amountInKLY
+        
+        }
+
+        // Reverse threshold should be set if recipient is a multisig address
+        if(typeof rev_t === 'number') payload.rev_t=rev_t
+
+
+        let event = {
+
+            v:workflowVersion,
+            creator:yourAddress,
+            type:TX_TYPES.TX,
+            nonce,
+            fee,
+            payload,
+            sig:''
+            
+        }
+
+
+        event.sig = await crypto.kly.signEd25519(this.currentSymbiote+workflowVersion+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
+
+        // Return signed event
+        return event
+
+    }
+
+
+    createMultisigTransaction=async(yourBLSAggregatedPubkey,yourBLSAggregatedSignature,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
+
+
+        nonce ??= this.getAccount(yourBLSAggregatedPubkey).then(account=>account.nonce).catch(_=>false)
+
+
+        let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
+    
+        let payload={
+
+            type:SIG_TYPES.MULTISIG,
+
+            active:yourBLSAggregatedPubkey,
+
+            afk:afkSigners,
+
+            to:recipient,
+
+            amount:amountInKLY
+        
+        }
+
+        // Reverse threshold should be set if recipient is a multisig address
+        if(typeof rev_t==='number') payload.rev_t=rev_t
+
+
+        let event = {
+
+            v:workflowVersion,
+            creator:yourBLSAggregatedPubkey,
+            type:TX_TYPES.TX,
+            nonce,
+            fee,
+            payload,
+            sig:''
+            
+        }
+
+        event.sig = yourBLSAggregatedSignature
+
+        // Return signed event
+        return event
+
+    }
+
+
+    signDataForMultisigTxAsOneOfTheActive=async(yourBLSPrivateKey,activeAggregatedPubkey,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
+
+        let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
+
+        let payload={
+
+            type:SIG_TYPES.MULTISIG,
+            active:activeAggregatedPubkey,
+            afk:afkSigners,
+
+            to:recipient,
+            amount:amountInKLY
+
+        }
+
+        if(typeof rev_t==='number') payload.rev_t = rev_t
+
+        let dataToSign = this.currentSymbiote+workflowVersion+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee
+
+        let signature = await bls.singleSig(dataToSign,yourBLSPrivateKey)
+        
+        return signature
+
+    }
+
+    createThresholdTransaction=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
 
 
     }
 
-    createMultisigEvent=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
+    createPostQuantumTransaction=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
 
 
 
     }
 
-    createThresholdSigEvent=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
 
+    sendTransaction=event=>{
 
+        let {nodeURL} = this.symbiotes.get(this.currentSymbiote)
+
+        return fetch(nodeURL,
+    
+            {
+            
+                method:'POST',
+            
+                body:JSON.stringify({symbiote:this.currentSymbiote,event})
+        
+            }
+    
+        ).then(r=>r.text()).catch(console.log)
+    
     }
 
-    createPostQuantumEvent=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
-
-
-
-    }
 
     //___________________________ SPECIAL OPERATIONS __________________________
 
@@ -175,7 +328,7 @@ export default class {
 
     //_________________ MUTUALISM(cross-symbiotic interaction) _______________
 
-    addSymbiote=(symbioteID,nodeURL)=>this.symbiotes.set(symbioteID,nodeURL)
+    addSymbiote=(symbioteID,workflowVersion,nodeURL)=>this.symbiotes.set(symbioteID,{nodeURL,workflowVersion})
 
     addHostchain=(hostchainTicker,hostchainURL)=>this.hostchains.get(hostchainTicker,hostchainURL)
 
