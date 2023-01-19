@@ -2,6 +2,7 @@
 
 Only general API & functionality present here. We'll extend abilities via modules & other packages and so on
 
+You can also use web3.js EVM-compatible API with symbiotes that supports KLY-EVM
 
 */
 
@@ -35,6 +36,17 @@ const SIG_TYPES = {
     POST_QUANTUM_DIL:'P/D',         // Post-quantum Dilithium(2/3/5,2 used by default)
     POST_QUANTUM_BLISS:'P/B',       // Post-quantum BLISS
     MULTISIG:'M'                    // Multisig BLS
+
+}
+
+const SPECIAL_OPERATIONS={
+
+    VERSION_UPDATE:'VERSION_UPDATE',
+    SLASH_UNSTAKE:'SLASH_UNSTAKE',
+    REMOVE_FROM_WAITING_ROOM:'REMOVE_FROM_WAITING_ROOM',
+    WORKFLOW_UPDATE:'WORKFLOW_UPDATE',
+    UPDATE_RUBICON:'UPDATE_RUBICON',
+    STAKING_CONTRACT_CALL:'STAKING_CONTRACT_CALL'
 
 }
 
@@ -262,9 +274,36 @@ export default class {
 
     }
 
-    createThresholdTransaction=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
+    createThresholdTransaction=async(tblsRootPubkey,sigSharesArray,nonce,recipient,amountInKLY,fee,rev_t)=>{
+    
+        let tblsPayload={
+    
+            to:recipient,
+    
+            amount:amountInKLY,
+    
+            type:SIG_TYPES.TBLS
+        
+        }
+    
+        if(typeof rev_t==='number') payload.rev_t = rev_t
 
-
+        let event = {
+    
+            v:this.symbiotes.get(this.currentSymbiote).workflowVersion,
+            creator:tblsRootPubkey,
+            type:TX_TYPES.TX,
+            nonce,
+            fee,
+            payload:tblsPayload,
+            sig:''
+        
+        }
+    
+        event.sig=tbls.buildSignature(sigSharesArray)
+ 
+        return event
+ 
     }
 
     createPostQuantumTransaction=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
@@ -295,9 +334,27 @@ export default class {
 
     //___________________________ SPECIAL OPERATIONS __________________________
 
-    createSpecialOperation=async()=>{}
+    createSpecialOperation=async(type,payload)=>{
 
-    sendSpecialOperation=async()=>{}
+        // See the examples
+
+    }
+
+    sendSpecialOperation=async specialOperation=>{
+
+        
+        let optionsToSend = {
+
+            method:'POST',
+            body:JSON.stringify(specialOperation)
+        
+        }
+
+        let status = await (await fetch(this.symbiotes.get(this.currentSymbiote),optionsToSend).then(r=>r.text())).catch(error=>error)
+
+        return status
+
+    }
 
     //_____________________________ STAKING LOGIC _____________________________
 
