@@ -3,7 +3,7 @@
 # <b>Wellcome to Web1337 by KLYNTAR</b>
 
 
-<img src="./main.jpg">
+<img src="./Web1337.gif">
 
 </div>
 
