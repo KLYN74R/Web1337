@@ -127,10 +127,10 @@ export default class {
     }
 
 
-    BLAKE3=(input,length=64)=>hash(input,{length}).toString('hex')
+    #BLAKE3=(input,length=64)=>hash(input,{length}).toString('hex')
 
 
-    GET_REQUEST_TO_NODE=url=>{
+    #GET_REQUEST_TO_NODE=url=>{
 
         let {nodeURL} = this.symbiotes.get(this.currentSymbiote)
 
@@ -139,7 +139,7 @@ export default class {
     }
 
 
-    POST_REQUEST_TO_NODE=(url,payload)=>{
+    #POST_REQUEST_TO_NODE=(url,payload)=>{
 
         let {nodeURL} = this.symbiotes.get(this.currentSymbiote)
 
@@ -227,38 +227,38 @@ export default class {
      * 
      * @returns {Checkpoint} current checkpoint
      */
-    getCurrentCheckpoint=()=>this.GET_REQUEST_TO_NODE('/quorum_thread_checkpoint')
+    getCurrentCheckpoint=()=>this.#GET_REQUEST_TO_NODE('/quorum_thread_checkpoint')
 
-    getSymbioteInfo=()=>this.GET_REQUEST_TO_NODE('/symbiote_info')
+    getSymbioteInfo=()=>this.#GET_REQUEST_TO_NODE('/symbiote_info')
 
     /**
      * 
      * @returns {Object} 
      */
-    getGeneralInfoAboutKLYInfrastructure=()=>this.GET_REQUEST_TO_NODE('/my_info')
+    getGeneralInfoAboutKLYInfrastructure=()=>this.#GET_REQUEST_TO_NODE('/my_info')
     
-    getSyncState=()=>this.GET_REQUEST_TO_NODE('/sync_state')
+    getSyncState=()=>this.#GET_REQUEST_TO_NODE('/sync_state')
 
 
     //_________________________Block API_________________________
 
 
-    getBlockByBlockID=blockID=>this.GET_REQUEST_TO_NODE('/block/'+blockID)
+    getBlockByBlockID=blockID=>this.#GET_REQUEST_TO_NODE('/block/'+blockID)
 
-    getBlockBySID=(subchain,sid)=>this.GET_REQUEST_TO_NODE(`/block_by_sid/${subchain}/${sid}`)
+    getBlockBySID=(subchain,sid)=>this.#GET_REQUEST_TO_NODE(`/block_by_sid/${subchain}/${sid}`)
 
-    getBlockByGRID=grid=>this.GET_REQUEST_TO_NODE('/block_by_grid/'+grid)
+    getBlockByGRID=grid=>this.#GET_REQUEST_TO_NODE('/block_by_grid/'+grid)
     
 
     //____________________Get data from state____________________
 
 
-    getFromState=(subchain,cellID)=>this.GET_REQUEST_TO_NODE(`/state/${subchain}/${cellID}`)
+    getFromState=(subchain,cellID)=>this.#GET_REQUEST_TO_NODE(`/state/${subchain}/${cellID}`)
 
-    getTransactionReceiptById=txID=>this.GET_REQUEST_TO_NODE('/tx_receipt/'+txID)
+    getTransactionReceiptById=txID=>this.#GET_REQUEST_TO_NODE('/tx_receipt/'+txID)
 
     // Consensus-related API
-    getAggregatedFinalizationProofForBlock=blockID=>this.GET_REQUEST_TO_NODE('/aggregated_finalization_proof/'+blockID)
+    getAggregatedFinalizationProofForBlock=blockID=>this.#GET_REQUEST_TO_NODE('/aggregated_finalization_proof/'+blockID)
 
 
     getTransactionTemplate=(workflowVersion,creator,txType,nonce,fee,payload)=>{
@@ -454,23 +454,8 @@ export default class {
     }
 
 
-    sendTransaction = transaction => {
+    sendTransaction = transaction => this.#POST_REQUEST_TO_NODE('/transaction',transaction)
 
-        let {nodeURL} = this.symbiotes.get(this.currentSymbiote)
-
-        return fetch(nodeURL+'/transaction',
-    
-            {
-            
-                method:'POST',
-            
-                body:JSON.stringify(transaction)
-        
-            }
-    
-        ).then(r=>r.json()).catch(error=>error)
-    
-    }
 
 
     /*
@@ -525,13 +510,13 @@ export default class {
 
     //____________________________ CONTRACTS LOGIC ____________________________
 
-    getContractMetadata=contractID=>this.GET_REQUEST_TO_NODE('/account/'+contractID)
+    getContractMetadata=contractID=>this.#GET_REQUEST_TO_NODE('/account/'+contractID)
 
-    getContractStorage=(contractID,storageName)=>this.GET_REQUEST_TO_NODE('/account/'+contractID+'_STORAGE_'+storageName)
+    getContractStorage=(contractID,storageName)=>this.#GET_REQUEST_TO_NODE('/account/'+contractID+'_STORAGE_'+storageName)
 
     callContract=(contractID,method,params,injects)=>{}
 
-    deployContractForKLYVM=(bytecode,callMap)=>{}
+    deployContractForKlyWvm=(bytecode,callMap)=>{}
 
 
     //____________________________ SERVICES LOGIC ____________________________

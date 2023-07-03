@@ -1,9 +1,9 @@
 <div align="center">
 
-# <b>Wellcome to Web1337 by KLYNTAR</b>
+# <b>Wellcome to Web1337</b>
 
 
-<img src="./Web1337.gif">
+<img src="./Web1337.png">
 
 </div>
 
