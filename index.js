@@ -53,10 +53,10 @@ import {HttpsProxyAgent} from 'https-proxy-agent'
 const TX_TYPES = {
 
     TX:'TX', // default address <=> address tx
-    CONTRACT_DEPLOY:'CONTRACT_DEPLOY',
-    CONTRACT_CALL:'CONTRACT_CALL',
-    EVM_CALL:'EVM_CALL',
-    MIGRATE_BETWEEN_ENV:'MIGRATE_BETWEEN_ENV'
+    CONTRACT_DEPLOY:'CONTRACT_DEPLOY', // deployment of WASM contact to KLY-WVM 
+    CONTRACT_CALL:'CONTRACT_CALL', // call the WASM contact to KLY-WVM
+    EVM_CALL:'EVM_CALL', // call the KLY-EVM
+    MIGRATE_BETWEEN_ENV:'MIGRATE_BETWEEN_ENV' // to move KLY coins from KLY-WVM to KLY-EVM and vice versa 
 
 }
 
@@ -90,19 +90,21 @@ export default class {
 
     /**
      * 
-     * @param {String} symbioteID identificator of KLY symbiote to work with
-     * @param {Number} workflowVersion identificator of appropriate version of symbiote's workflow
-     * @param {String} nodeURL endpoint of node to interact with
-     * @param {String} proxyURL HTTP(s) / SOCKS proxy url
+     * @param {String} [options.symbioteID] identificator of KLY symbiote to work with
+     * @param {Number} [options.workflowVersion] identificator of appropriate version of symbiote's workflow
+     * @param {String} [options.nodeURL] endpoint of node to interact with
+     * @param {String} [options.proxyURL] HTTP(s) / SOCKS proxy url
      * 
      * 
-     * @param {String} hostChainTicker ticker of hostchain of your symbiote
-     * @param {String} hostchainNodeURL endpoint to interact with hostchain's node
+     * @param {String} [options.hostChainTicker] ticker of hostchain of your symbiote
+     * @param {String} [options.hostchainNodeURL] endpoint to interact with hostchain's node
      * 
      */
-    constructor({symbioteID,workflowVersion,nodeURL,proxyURL,hostChainTicker,hostchainNodeURL}){
+    constructor(options = {symbioteID,workflowVersion,nodeURL,proxyURL,hostChainTicker,hostchainNodeURL}){
 
-        if(typeof proxyURL === 'string'){
+        let {symbioteID,workflowVersion,nodeURL,proxyURL,hostChainTicker,hostchainNodeURL} = options;
+
+        if(proxyURL === 'string'){
 
             if(proxyURL.startsWith('http')) this.proxy = new HttpsProxyAgent(proxyURL)  // for example => 'http(s)://login:password@127.0.0.1:8080'
 
@@ -132,13 +134,7 @@ export default class {
 
         let {nodeURL} = this.symbiotes.get(this.currentSymbiote)
 
-        return fetch(nodeURL+url).then(r=>r.json()).catch(e=>{
-
-            console.log('_________ ERROR _________')
-
-            console.error(e)
-
-        })
+        return fetch(nodeURL+url,{agent:this.proxy}).then(r=>r.json()).catch(error=>error)
 
     }
 
@@ -150,51 +146,119 @@ export default class {
         return fetch(nodeURL+url,{
 
             method:'POST',
-            body:JSON.stringify(payload)
+            body:JSON.stringify(payload),
+            agent:this.proxy
 
-        }).then(r=>r.json()).catch(e=>{
-
-            console.log('_________ ERROR _________')
-
-            console.error(e)
-
-        })
+        }).then(r=>r.json()).catch(error=>error)
 
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
-    //____________________________ API _____________________________
+    
+    /*
+    
+    
+                         █████╗ ██████╗ ██╗
+                        ██╔══██╗██╔══██╗██║
+                        ███████║██████╔╝██║
+                        ██╔══██║██╔═══╝ ██║
+                        ██║  ██║██║     ██║
+                        ╚═╝  ╚═╝╚═╝     ╚═╝
+    
+    
+    */
 
-    // General info & stats
-    getGeneralInfoAboutKLYInfrastructure=()=>this.GET_REQUEST_TO_NODE('/my_info')
 
+    //_______Get data about checkpoint, symbiote and state__________
+
+    /**
+     * @typedef {Object} PoolsMetadata
+     * @property {Number} index - index of finalized blocks by this checkpoint
+     * @property {String} hash - hash of block with this index
+     * @property {Boolean} isReserve - pointer if pool is reserve. true - it's reserve pool, false - it's prime pool with own subchain
+     * 
+     * 
+     * @typedef {Object} CheckpointHeader
+     * @property {Number} id - index of checkpoint to keep sequence
+     * @property {String} payloadHash - 512-bit BLAKE3 hash of payload
+     * @property {String} quorumAggregatedSignersPubKey - Base58 encoded BLS aggregated pubkey of quorum members who agreed and sign this checkpoint
+     * @property {String} quorumAggregatedSignature - Base64 encoded BLS aggregated signature of quorum members who agreed and sign this checkpoint
+     * @property {Array.<string>} afkVoters - array of pubkeys of quorum members who didn't take part in signing process
+     * 
+     * 
+     * @typedef {Object} CheckpointPayload
+     * @property {String} prevCheckpointPayloadHash - 512-bit BLAKE3 hash of previous checkpoint(since it's chain)
+     * @property {PoolsMetadata} poolsMetadata - metadata of all registered pools for current epoch
+     * @property {Array.<Object>} operations - array of special operations that must be runned after checkpoint
+     * @property {Object} otherSymbiotes - state fixation of other symbiotes in ecosystem
+     * 
+     * 
+     * @typedef {Object} Checkpoint
+     * @property {CheckpointHeader} header - the header of checkpoint that is published on hostchains
+     * @property {CheckpointPayload} payload - the payload of checkpoint with all the required stuff
+    
+     */
+
+    /**
+     * 
+     * 
+     * @returns {Checkpoint} current checkpoint
+     */
     getCurrentCheckpoint=()=>this.GET_REQUEST_TO_NODE('/quorum_thread_checkpoint')
-
-    getPayloadForCheckpointByHash=payloadHash=>this.GET_REQUEST_TO_NODE('/payload_for_checkpoint/'+payloadHash)
-    
-    getSyncState=()=>this.GET_REQUEST_TO_NODE('/sync_state')
 
     getSymbioteInfo=()=>this.GET_REQUEST_TO_NODE('/symbiote_info')
 
+    /**
+     * 
+     * @returns {Object} 
+     */
+    getGeneralInfoAboutKLYInfrastructure=()=>this.GET_REQUEST_TO_NODE('/my_info')
+    
+    getSyncState=()=>this.GET_REQUEST_TO_NODE('/sync_state')
 
-    // Block API
+
+    //_________________________Block API_________________________
+
+
     getBlockByBlockID=blockID=>this.GET_REQUEST_TO_NODE('/block/'+blockID)
 
     getBlockBySID=(subchain,sid)=>this.GET_REQUEST_TO_NODE(`/block_by_sid/${subchain}/${sid}`)
 
     getBlockByGRID=grid=>this.GET_REQUEST_TO_NODE('/block_by_grid/'+grid)
     
-    // Account API
-    getAccount=accountID=>this.GET_REQUEST_TO_NODE('/account/'+accountID)
 
+    //____________________Get data from state____________________
+
+
+    getFromState=(subchain,cellID)=>this.GET_REQUEST_TO_NODE(`/state/${subchain}/${cellID}`)
+
+    getTransactionReceiptById=txID=>this.GET_REQUEST_TO_NODE('/tx_receipt/'+txID)
 
     // Consensus-related API
     getAggregatedFinalizationProofForBlock=blockID=>this.GET_REQUEST_TO_NODE('/aggregated_finalization_proof/'+blockID)
-
-
-
-    // Transactions (default txs,contract calls,etc) API
-    getTransactionReceiptById=txID=>this.GET_REQUEST_TO_NODE('/tx_receipt/'+txID)
 
 
     getTransactionTemplate=(workflowVersion,creator,txType,nonce,fee,payload)=>{
@@ -202,22 +266,66 @@ export default class {
         return {
 
             v:workflowVersion,
-            c:creator,
-            t:txType,
-            n:nonce,
-            f:fee,
-            p:payload
+            creator,
+            type:txType,
+            nonce,
+            fee,
+            payload,
+            sig:''
 
         }
 
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+    
+    
+                   ████████╗██████╗  █████╗ ███╗   ██╗███████╗ █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗███████╗
+                    ══██╔══╝██╔══██╗██╔══██╗████╗  ██║██╔════╝██╔══██╗██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
+                      ██║   ██████╔╝███████║██╔██╗ ██║███████╗███████║██║        ██║   ██║██║   ██║██╔██╗ ██║███████╗
+                      ██║   ██╔══██╗██╔══██║██║╚██╗██║╚════██║██╔══██║██║        ██║   ██║██║   ██║██║╚██╗██║╚════██║
+                      ██║   ██║  ██║██║  ██║██║ ╚████║███████║██║  ██║╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║███████║
+                      ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
+
+                    ██████╗██████╗ ███████╗ █████╗ ████████╗██╗███╗   ██╗ ██████╗                                    
+                    █╔════╝██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝                                    
+                    █║     ██████╔╝█████╗  ███████║   ██║   ██║██╔██╗ ██║██║  ███╗                                   
+                    █║     ██╔══██╗██╔══╝  ██╔══██║   ██║   ██║██║╚██╗██║██║   ██║                                   
+                    ██████╗██║  ██║███████╗██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝                                   
+                    ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝                                    
+
+
+    */
+
+
     // Transactions. Default, Multisig, Threshold, Post-quantum
 
     createDefaultTransaction=async(originSubchain,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>{
 
-        nonce ??= this.getAccount(yourAddress).then(account=>account.nonce).catch(_=>false)
+        nonce ??= this.getFromState(yourAddress).then(account=>account.nonce).catch(_=>false)
 
 
         let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
@@ -236,18 +344,7 @@ export default class {
         if(typeof rev_t === 'number') payload.rev_t=rev_t
 
 
-        let transaction = {
-
-            v:workflowVersion,
-            creator:yourAddress,
-            type:TX_TYPES.TX,
-            nonce,
-            fee,
-            payload,
-            sig:''
-            
-        }
-
+        let transaction = this.getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.TX,nonce,fee,payload)
 
         transaction.sig = await crypto.kly.signEd25519(this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
 
@@ -260,7 +357,7 @@ export default class {
     createMultisigTransaction=async(yourBLSAggregatedPubkey,yourBLSAggregatedSignature,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
 
 
-        nonce ??= this.getAccount(yourBLSAggregatedPubkey).then(account=>account.nonce).catch(_=>false)
+        nonce ??= this.getFromState(yourBLSAggregatedPubkey).then(account=>account.nonce).catch(_=>false)
 
 
         let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
@@ -283,17 +380,7 @@ export default class {
         if(typeof rev_t==='number') payload.rev_t=rev_t
 
 
-        let multisigTransaction = {
-
-            v:workflowVersion,
-            creator:yourBLSAggregatedPubkey,
-            type:TX_TYPES.TX,
-            nonce,
-            fee,
-            payload,
-            sig:''
-            
-        }
+        let multisigTransaction = this.getTransactionTemplate(workflowVersion,yourBLSAggregatedPubkey,TX_TYPES.TX,nonce,fee,payload)
 
         multisigTransaction.sig = yourBLSAggregatedSignature
 
@@ -303,7 +390,7 @@ export default class {
     }
 
 
-    signDataForMultisigTxAsOneOfTheActive=async(originSubchain,yourBLSPrivateKey,activeAggregatedPubkey,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
+    signDataForMultisigTxAsOneOfTheActiveSigners=async(originSubchain,yourBLSPrivateKey,activeAggregatedPubkey,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
 
         let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
 
@@ -342,18 +429,18 @@ export default class {
     
         if(typeof rev_t==='number') payload.rev_t = rev_t
 
-        let thresholdSigTransaction = {
-    
-            v:this.symbiotes.get(this.currentSymbiote).workflowVersion,
-            creator:tblsRootPubkey,
-            type:TX_TYPES.TX,
-            nonce,
-            fee,
-            payload:tblsPayload,
-            sig:''
+        let thresholdSigTransaction = this.getTransactionTemplate(
+            
+            this.symbiotes.get(this.currentSymbiote).workflowVersion,
+            
+            tblsRootPubkey,
+            
+            TX_TYPES.TX,
+            
+            nonce, fee, tblsPayload
+            
+        )
         
-        }
-    
         thresholdSigTransaction.sig=tbls.buildSignature(sigSharesArray)
  
         return thresholdSigTransaction
@@ -381,12 +468,31 @@ export default class {
         
             }
     
-        ).then(r=>r.text()).catch(console.log)
+        ).then(r=>r.json()).catch(error=>error)
     
     }
 
 
-    //___________________________ SPECIAL OPERATIONS __________________________
+    /*
+    
+    
+    
+                    ███████╗██████╗ ███████╗ ██████╗██╗ █████╗ ██╗                                  
+                    ██╔════╝██╔══██╗██╔════╝██╔════╝██║██╔══██╗██║                                  
+                    ███████╗██████╔╝█████╗  ██║     ██║███████║██║                                  
+                    ╚════██║██╔═══╝ ██╔══╝  ██║     ██║██╔══██║██║                                  
+                    ███████║██║     ███████╗╚██████╗██║██║  ██║███████╗                             
+                    ╚══════╝╚═╝     ╚══════╝ ╚═════╝╚═╝╚═╝  ╚═╝╚══════╝                             
+                                                                                
+         ██████╗ ██████╗ ███████╗██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗███████╗
+        ██╔═══██╗██╔══██╗██╔════╝██╔══██╗██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
+        ██║   ██║██████╔╝█████╗  ██████╔╝███████║   ██║   ██║██║   ██║██╔██╗ ██║███████╗
+        ██║   ██║██╔═══╝ ██╔══╝  ██╔══██╗██╔══██║   ██║   ██║██║   ██║██║╚██╗██║╚════██║
+        ╚██████╔╝██║     ███████╗██║  ██║██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║███████║
+         ╚═════╝ ╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
+                                                                                
+    
+    */
 
     createSpecialOperation=async(type,payload)=>{
 

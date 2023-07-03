@@ -2,8 +2,18 @@ import Web1337 from './index.js';
 import crypto from './crypto_primitives/crypto.js';
 import bls from './crypto_primitives/bls.js';
 
-let web1337 = new Web1337('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',0,'http://localhost:7331');
+let web1337 = new Web1337({
 
+    symbioteID:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    workflowVersion:0,
+    nodeURL: 'http://localhost:7332'
+
+});
+
+
+let currentCheckpoint = await web1337.getCurrentCheckpoint()
+
+console.log(currentCheckpoint)
 
 
 // let myKeyPair = {
@@ -16,19 +26,19 @@ let web1337 = new Web1337('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 // }
 
 
-let blsPrivate = await bls.generatePrivateKey()
+// let blsPrivate = await bls.generatePrivateKey()
 
-console.log(blsPrivate)
+// console.log(blsPrivate)
 
-let blsPub = await bls.derivePubKey(blsPrivate)
+// let blsPub = await bls.derivePubKey(blsPrivate)
 
-console.log(blsPub)
+// console.log(blsPub)
 
-let partialSignature = await web1337.signDataForMultisigTxAsOneOfTheActive(blsPrivate,blsPub,[],1,5,'7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta',10)
+// let partialSignature = await web1337.signDataForMultisigTxAsOneOfTheActiveSigners(blsPrivate,blsPub,[],1,5,'7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta',10)
 
-let tx = await web1337.createMultisigTransaction(blsPub,partialSignature,[],1,5,'7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta',10)
+// let tx = await web1337.createMultisigTransaction(blsPub,partialSignature,[],1,5,'7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta',10)
 
-console.log(tx)
+// console.log(tx)
 
 
 
