@@ -96,15 +96,15 @@ let postQuantumBliss={
 
 
 
-let SEND_EVENT=event=>{
+let SEND_TRANSCATION=transaction=>{
 
-    return fetch('http://localhost:7331/event',
+    return fetch('http://localhost:7331/transaction',
 
         {
 
             method:'POST',
 
-            body:JSON.stringify({symbiote:SYMBIOTE_ID,event})
+            body:JSON.stringify(transaction)
 
         }
 
@@ -129,7 +129,7 @@ let GET_ACCOUNT_DATA=async account=>{
 }
 
 
-let GET_EVENT_TEMPLATE=async(account,txType,sigType,nonce,payload)=>{
+let GET_TRANSACTION_TEMPLATE=async(account,txType,sigType,nonce,payload)=>{
 
 
     let template = {
@@ -178,11 +178,11 @@ let MULTISIG_2_DILITHIUM=async()=>{
         amount:2500
     }
 
-    let event = await GET_EVENT_TEMPLATE(user0,TX_TYPES.TX,SIG_TYPES.MULTISIG,accData.nonce+1,postQuantumPayload)
+    let event = await GET_TRANSACTION_TEMPLATE(user0,TX_TYPES.TX,SIG_TYPES.MULTISIG,accData.nonce+1,postQuantumPayload)
 
     console.log(event)
 
-    let status = await SEND_EVENT(event)
+    let status = await SEND_TRANSCATION(event)
 
     console.log('Dilithium tx status => ',status)
 
@@ -209,11 +209,11 @@ let MULTISIG_2_BLISS=async()=>{
         amount:2500
     }
 
-    let event = await GET_EVENT_TEMPLATE(user0,TX_TYPES.TX,SIG_TYPES.MULTISIG,accData.nonce+1,postQuantumPayload)
+    let event = await GET_TRANSACTION_TEMPLATE(user0,TX_TYPES.TX,SIG_TYPES.MULTISIG,accData.nonce+1,postQuantumPayload)
 
   console.log(event)
 
-    let status = await SEND_EVENT(event)
+    let status = await SEND_TRANSCATION(event)
 
     console.log('Bliss tx status => ',status)
 
@@ -268,7 +268,7 @@ let DILITHIUM_2_DEFAULT=async()=>{
 
     console.log(event)
 
-    let status = await SEND_EVENT(event)
+    let status = await SEND_TRANSCATION(event)
 
     console.log('SEND DILITHIUM TX STATUS => ',status)
 
@@ -314,7 +314,7 @@ let BLISS_2_DEFAULT=async()=>{
 
   console.log('IS SIGNA OK => ',ADDONS.verify_BLISS(dataToSign,postQuantumBliss.pub,event.sig))
 
-    let status = await SEND_EVENT(event)
+    let status = await SEND_TRANSCATION(event)
 
   console.log('SEND BLISS STATUS => ',status)
 

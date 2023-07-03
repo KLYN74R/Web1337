@@ -33,6 +33,6 @@ console.log(tx)
 
 
 
-// await web1337.createDefaultEvent(myKeyPair.pub,myKeyPair.prv,0,'7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta',5,10)
+// await web1337.createDefaultTransaction(myKeyPair.pub,myKeyPair.prv,0,'7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta',5,10)
 
 // console.log(myKeyPair)

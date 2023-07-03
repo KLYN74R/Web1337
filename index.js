@@ -1,8 +1,33 @@
 /*
 
-Only general API & functionality present here. We'll extend abilities via modules & other packages and so on
 
-You can also use web3.js EVM-compatible API with symbiotes that supports KLY-EVM
+                        ██╗    ██╗███████╗██████╗        ██╗██████╗ ██████╗ ███████╗                            
+                        ██║    ██║██╔════╝██╔══██╗      ███║╚════██╗╚════██╗╚════██║                            
+                        ██║ █╗ ██║█████╗  ██████╔╝█████╗╚██║ █████╔╝ █████╔╝    ██╔╝                            
+                        ██║███╗██║██╔══╝  ██╔══██╗╚════╝ ██║ ╚═══██╗ ╚═══██╗   ██╔╝                             
+                        ╚███╔███╔╝███████╗██████╔╝       ██║██████╔╝██████╔╝   ██║                              
+                         ╚══╝╚══╝ ╚══════╝╚═════╝        ╚═╝╚═════╝ ╚═════╝    ╚═╝                              
+                                                                                                                
+                                                                                                                
+                                                                                                                
+                                                                                          
+                                                                                                                
+                                                                                                                
+ ██████╗██████╗ ███████╗ █████╗ ████████╗███████╗██████╗     ███████╗ ██████╗ ██████╗     ██╗  ██╗██╗  ██╗   ██╗
+██╔════╝██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██╔════╝██╔══██╗    ██╔════╝██╔═══██╗██╔══██╗    ██║ ██╔╝██║  ╚██╗ ██╔╝
+██║     ██████╔╝█████╗  ███████║   ██║   █████╗  ██║  ██║    █████╗  ██║   ██║██████╔╝    █████╔╝ ██║   ╚████╔╝ 
+██║     ██╔══██╗██╔══╝  ██╔══██║   ██║   ██╔══╝  ██║  ██║    ██╔══╝  ██║   ██║██╔══██╗    ██╔═██╗ ██║    ╚██╔╝  
+╚██████╗██║  ██║███████╗██║  ██║   ██║   ███████╗██████╔╝    ██║     ╚██████╔╝██║  ██║    ██║  ██╗███████╗██║   
+ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═════╝     ╚═╝      ╚═════╝ ╚═╝  ╚═╝    ╚═╝  ╚═╝╚══════╝╚═╝   
+
+
+
+    _____________________________________________ INFO _____________________________________________
+
+    Only general API & functionality present here. We'll extend abilities via modules & other packages and so on
+
+    You can also use web3.js EVM-compatible API with symbiotes that supports KLY-EVM
+
 
 */
 
@@ -14,8 +39,14 @@ import {hash} from 'blake3-wasm'
 import fetch from 'node-fetch'
 
 
+// For future support of WSS
+// import WS from 'websocket' // https://github.com/theturtle32/WebSocket-Node
 
-// import WS from 'websocket' //https://github.com/theturtle32/WebSocket-Node
+
+// For proxy support
+
+import {SocksProxyAgent} from 'socks-proxy-agent'
+import {HttpsProxyAgent} from 'https-proxy-agent'
 
 
 
@@ -51,15 +82,37 @@ const SPECIAL_OPERATIONS={
 }
 
 
+export {TX_TYPES,SIG_TYPES,SPECIAL_OPERATIONS}
+
+
+
 export default class {
 
-    constructor(symbioteID,workflowVersion,nodeURL,proxy,hostChainTicker,hostchainNodeURL){
+    /**
+     * 
+     * @param {String} symbioteID identificator of KLY symbiote to work with
+     * @param {Number} workflowVersion identificator of appropriate version of symbiote's workflow
+     * @param {String} nodeURL endpoint of node to interact with
+     * @param {String} proxyURL HTTP(s) / SOCKS proxy url
+     * 
+     * 
+     * @param {String} hostChainTicker ticker of hostchain of your symbiote
+     * @param {String} hostchainNodeURL endpoint to interact with hostchain's node
+     * 
+     */
+    constructor({symbioteID,workflowVersion,nodeURL,proxyURL,hostChainTicker,hostchainNodeURL}){
 
-        this.proxy=proxy //for TOR/I2P connections
+        if(typeof proxyURL === 'string'){
 
-        this.symbiotes = new Map() //symbioteID => {nodeURL,workflowVersion}
+            if(proxyURL.startsWith('http')) this.proxy = new HttpsProxyAgent(proxyURL)  // for example => 'http(s)://login:password@127.0.0.1:8080'
 
-        this.hostchains = new Map() //ticker => endpoint(RPC,websocket,etc.)
+            else if (proxyURL.startsWith('socks'))  this.proxy = new SocksProxyAgent(proxyURL) // for TOR/I2P connections. For example => socks5h://Vlad:Cher@127.0.0.1:9150
+
+        }
+
+        this.symbiotes = new Map() // symbioteID => {nodeURL,workflowVersion}
+
+        this.hostchains = new Map() // ticker => endpoint(RPC,websocket,etc.)
 
 
         //Set the initial values
@@ -72,7 +125,7 @@ export default class {
     }
 
 
-    BLAKE3=v=>hash(v).toString('hex')
+    BLAKE3=(input,length=64)=>hash(input,{length}).toString('hex')
 
 
     GET_REQUEST_TO_NODE=url=>{
@@ -113,43 +166,44 @@ export default class {
     //____________________________ API _____________________________
 
     // General info & stats
-    getGeneralInfoAboutKLYInfrastructure=()=>this.GET_REQUEST_TO_NODE('/get_my_info')
+    getGeneralInfoAboutKLYInfrastructure=()=>this.GET_REQUEST_TO_NODE('/my_info')
 
-    getCurrentCheckpoint=()=>this.GET_REQUEST_TO_NODE('/get_quorum')
+    getCurrentCheckpoint=()=>this.GET_REQUEST_TO_NODE('/quorum_thread_checkpoint')
 
-    getPayloadForCheckpointByHash=hash=>this.GET_REQUEST_TO_NODE('/get_payload_for_checkpoint/'+hash)
+    getPayloadForCheckpointByHash=payloadHash=>this.GET_REQUEST_TO_NODE('/payload_for_checkpoint/'+payloadHash)
     
-    getSyncState=()=>this.GET_REQUEST_TO_NODE('/get_sync_state')
+    getSyncState=()=>this.GET_REQUEST_TO_NODE('/sync_state')
 
-    getSymbioteInfo=()=>this.GET_REQUEST_TO_NODE('/get_symbiote_info')
+    getSymbioteInfo=()=>this.GET_REQUEST_TO_NODE('/symbiote_info')
 
 
     // Block API
     getBlockByBlockID=blockID=>this.GET_REQUEST_TO_NODE('/block/'+blockID)
 
-    getBlockByRID=rid=>this.GET_REQUEST_TO_NODE('/get_block_by_rid/'+rid)
+    getBlockBySID=(subchain,sid)=>this.GET_REQUEST_TO_NODE(`/block_by_sid/${subchain}/${sid}`)
 
+    getBlockByGRID=grid=>this.GET_REQUEST_TO_NODE('/block_by_grid/'+grid)
     
     // Account API
     getAccount=accountID=>this.GET_REQUEST_TO_NODE('/account/'+accountID)
 
 
     // Consensus-related API
-    getSuperFinalizationProofForBlock=(blockID,blockHash)=>this.GET_REQUEST_TO_NODE('/get_super_finalization/'+blockID+blockHash)
+    getAggregatedFinalizationProofForBlock=blockID=>this.GET_REQUEST_TO_NODE('/aggregated_finalization_proof/'+blockID)
 
 
 
-    // Events (txs,contract calls,etc) API
-    getEventReceiptById=eventID=>this.GET_REQUEST_TO_NODE('/get_event_receipt/'+eventID)
+    // Transactions (default txs,contract calls,etc) API
+    getTransactionReceiptById=txID=>this.GET_REQUEST_TO_NODE('/tx_receipt/'+txID)
 
 
-    getEventTemplate=(workflowVersion,creator,eventType,nonce,fee,payload)=>{
+    getTransactionTemplate=(workflowVersion,creator,txType,nonce,fee,payload)=>{
 
         return {
 
             v:workflowVersion,
             c:creator,
-            t:eventType,
+            t:txType,
             n:nonce,
             f:fee,
             p:payload
@@ -161,7 +215,7 @@ export default class {
 
     // Transactions. Default, Multisig, Threshold, Post-quantum
 
-    createDefaultTransaction=async(yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>{
+    createDefaultTransaction=async(originSubchain,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>{
 
         nonce ??= this.getAccount(yourAddress).then(account=>account.nonce).catch(_=>false)
 
@@ -182,7 +236,7 @@ export default class {
         if(typeof rev_t === 'number') payload.rev_t=rev_t
 
 
-        let event = {
+        let transaction = {
 
             v:workflowVersion,
             creator:yourAddress,
@@ -195,10 +249,10 @@ export default class {
         }
 
 
-        event.sig = await crypto.kly.signEd25519(this.currentSymbiote+workflowVersion+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
+        transaction.sig = await crypto.kly.signEd25519(this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
 
-        // Return signed event
-        return event
+        // Return signed transaction
+        return transaction
 
     }
 
@@ -229,7 +283,7 @@ export default class {
         if(typeof rev_t==='number') payload.rev_t=rev_t
 
 
-        let event = {
+        let multisigTransaction = {
 
             v:workflowVersion,
             creator:yourBLSAggregatedPubkey,
@@ -241,15 +295,15 @@ export default class {
             
         }
 
-        event.sig = yourBLSAggregatedSignature
+        multisigTransaction.sig = yourBLSAggregatedSignature
 
-        // Return signed event
-        return event
+        // Return signed tx
+        return multisigTransaction
 
     }
 
 
-    signDataForMultisigTxAsOneOfTheActive=async(yourBLSPrivateKey,activeAggregatedPubkey,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
+    signDataForMultisigTxAsOneOfTheActive=async(originSubchain,yourBLSPrivateKey,activeAggregatedPubkey,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
 
         let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
 
@@ -266,7 +320,7 @@ export default class {
 
         if(typeof rev_t==='number') payload.rev_t = rev_t
 
-        let dataToSign = this.currentSymbiote+workflowVersion+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee
+        let dataToSign = this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee
 
         let signature = await bls.singleSig(dataToSign,yourBLSPrivateKey)
         
@@ -288,7 +342,7 @@ export default class {
     
         if(typeof rev_t==='number') payload.rev_t = rev_t
 
-        let event = {
+        let thresholdSigTransaction = {
     
             v:this.symbiotes.get(this.currentSymbiote).workflowVersion,
             creator:tblsRootPubkey,
@@ -300,9 +354,9 @@ export default class {
         
         }
     
-        event.sig=tbls.buildSignature(sigSharesArray)
+        thresholdSigTransaction.sig=tbls.buildSignature(sigSharesArray)
  
-        return event
+        return thresholdSigTransaction
  
     }
 
@@ -313,17 +367,17 @@ export default class {
     }
 
 
-    sendTransaction=event=>{
+    sendTransaction = transaction => {
 
         let {nodeURL} = this.symbiotes.get(this.currentSymbiote)
 
-        return fetch(nodeURL,
+        return fetch(nodeURL+'/transaction',
     
             {
             
                 method:'POST',
             
-                body:JSON.stringify({symbiote:this.currentSymbiote,event})
+                body:JSON.stringify(transaction)
         
             }
     
