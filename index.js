@@ -84,7 +84,7 @@ const SPECIAL_OPERATIONS={
 
 export {TX_TYPES,SIG_TYPES,SPECIAL_OPERATIONS}
 
-
+export {bls,tbls,crypto}
 
 export default class {
 
@@ -127,7 +127,7 @@ export default class {
     }
 
 
-    #BLAKE3=(input,length=64)=>hash(input,{length}).toString('hex')
+    BLAKE3=(input,length=64)=>hash(input,{length}).toString('hex')
 
 
     #GET_REQUEST_TO_NODE=url=>{
@@ -325,9 +325,6 @@ export default class {
 
     createDefaultTransaction=async(originSubchain,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>{
 
-        nonce ??= this.getFromState(yourAddress).then(account=>account.nonce).catch(_=>false)
-
-
         let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
     
         let payload={
@@ -354,11 +351,7 @@ export default class {
     }
 
 
-    createMultisigTransaction=async(yourBLSAggregatedPubkey,yourBLSAggregatedSignature,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
-
-
-        nonce ??= this.getFromState(yourBLSAggregatedPubkey).then(account=>account.nonce).catch(_=>false)
-
+    createMultisigTransaction=async(rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
 
         let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
     
@@ -366,7 +359,7 @@ export default class {
 
             type:SIG_TYPES.MULTISIG,
 
-            active:yourBLSAggregatedPubkey,
+            active:aggregatedPubOfActive,
 
             afk:afkSigners,
 
@@ -380,9 +373,9 @@ export default class {
         if(typeof rev_t==='number') payload.rev_t=rev_t
 
 
-        let multisigTransaction = this.getTransactionTemplate(workflowVersion,yourBLSAggregatedPubkey,TX_TYPES.TX,nonce,fee,payload)
+        let multisigTransaction = this.getTransactionTemplate(workflowVersion,rootPubKey,TX_TYPES.TX,nonce,fee,payload)
 
-        multisigTransaction.sig = yourBLSAggregatedSignature
+        multisigTransaction.sig = aggregatedSignatureOfActive
 
         // Return signed tx
         return multisigTransaction

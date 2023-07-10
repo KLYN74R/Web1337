@@ -1,22 +1,23 @@
-import Web1337 from '../index.js';
+import Web1337 from '../index.js'
 
 
-let web1337 = new Web1337('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',0,'http://localhost:7331');
+let web1337 = new Web1337({
 
-let block = await web1337.getBlockByBlockID('7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta:10')
+    symbioteID:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    workflowVersion:0,
+    nodeURL: 'http://localhost:7332'
 
-console.log(block)
-
-console.log('Account info is ',await web1337.getAccount('7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta'))
-
-
-console.log('General node info ',await web1337.getGeneralInfoAboutKLYInfrastructure())
+});
 
 
-console.log('1137th block is => ',await web1337.getBlockByRID(130))
+console.log(`Current checkpoint is => `,await web1337.getCurrentCheckpoint())
 
+console.log(`AFP for block 7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta:0 is => `,await web1337.getAggregatedFinalizationProofForBlock('7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta:0'))
 
-console.log('Symbiote info is => ',await web1337.getSymbioteInfo())
+console.log('Get block 7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta:0 by blockID => ',await web1337.getBlockByBlockID('7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta:0'))
 
+console.log('Get block 0 by GRID => ',await web1337.getBlockByGRID(0))
 
-console.log('Pool storage is ',await web1337.getContractStorage('7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta(POOL)','POOL'))
+console.log('Infrastructure info => ',await web1337.getGeneralInfoAboutKLYInfrastructure())
+
+console.log('Current state => ',await web1337.getSyncState())
