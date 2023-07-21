@@ -445,9 +445,43 @@ export default class {
     }
 
 
-    createPostQuantumTransaction = async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
+    /**
+     * 
+     * @param {('bliss'|'dilithium')} sigType 
+     * @param {*} yourAddress 
+     * @param {*} yourPubKey 
+     * @param {*} yourPrivateKey 
+     * @param {*} recipient 
+     * @param {*} amountInKLY 
+     * @param {*} rev_t 
+     * @returns 
+     */
+    createPostQuantumTransaction = async(originSubchain,sigType,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)=>{
+
+        let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
+    
+        let payload={
+
+            type: sigType === 'bliss' ? SIG_TYPES.POST_QUANTUM_BLISS : SIG_TYPES.POST_QUANTUM_DIL,
+
+            to:recipient,
+
+            amount:amountInKLY
+        
+        }
+
+        // Reverse threshold should be set if recipient is a multisig address
+        if(typeof rev_t === 'number') payload.rev_t = rev_t
 
 
+        let transaction = this.getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.TX,nonce,fee,payload)
+
+        let funcRef = sigType === 'bliss' ? crypto.pqc.bliss : crypto.pqc.dilithium
+
+        transaction.sig = await funcRef.signData(this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
+
+        // Return signed transaction
+        return transaction
 
     }
 

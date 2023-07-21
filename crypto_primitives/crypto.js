@@ -147,16 +147,20 @@ export default {
             // generate Dilithium PQC keypair.BLAKE3 hash of pubkey is address. Result => {private,public,address}
         
             generateDilithiumKeypair:()=>{
+
+                if(addons){
+
+                    let [pubKey,privateKey] = addons['gen_DIL']().split(':')
+
+                    return {pubKey,privateKey,address:BLAKE3(pubKey)}        
+
+                }else console.log(`Not a linux env`)
                 
-                let [pubKey,privateKey] = addons['gen_DIL']().split(':')
-
-                return {pubKey,privateKey,address:BLAKE3(pubKey)}    
-
             },
         
-            signWithDilithium:(privateKey,message)=>addons['sign_DIL'](privateKey,message),
+            signData:(privateKey,message)=>addons ? addons['sign_DIL'](privateKey,message) : console.log(`Not a linux env`),
 
-            verifyDilithiumSignature:(message,pubKey,signa)=>addons['verify_DIL'](message,pubKey,signa)
+            verifySignature:(message,pubKey,signa)=>addons ? addons['verify_DIL'](message,pubKey,signa) : console.log(`Not a linux env`)
 
         },
 
@@ -167,15 +171,19 @@ export default {
 
             generateBlissKeypair:()=>{
 
-                let [pubKey,privateKey] = addons['gen_DIL']().split(':')
+                if(addons){
 
-                return {pubKey,privateKey,address:BLAKE3(pubKey)}
+                    let [pubKey,privateKey] = addons['gen_DIL']().split(':')
+
+                    return {pubKey,privateKey,address:BLAKE3(pubKey)}
+
+                }else console.log(`Not a linux env`)
 
             },
 
-            signWithBliss:(privateKey,message)=>addons['sign_BLISS'](privateKey,message),
+            signData:(privateKey,message)=>addons ? addons['sign_BLISS'](privateKey,message) : console.log(`Not a linux env`),
 
-            verifyBlissSignature:(message,pubKey,signa)=>addons['verify_BLISS'](message,pubKey,signa)
+            verifySignature:(message,pubKey,signa)=>addons ? addons['verify_BLISS'](message,pubKey,signa) : console.log(`Not a linux env`)
 
 
         }
