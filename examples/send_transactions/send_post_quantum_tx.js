@@ -1,4 +1,4 @@
-import Web1337 from '../../index.js'
+import Web1337 from '../../index.js';
 
 
 
@@ -47,11 +47,11 @@ const amountInKLY = 13.37;
 let signedDilithiumTx = await web1337.createPostQuantumTransaction(subchain,'dilithium',dilithiumKeyPair.address,dilithiumKeyPair.prv,nonce,recipient,amountInKLY,fee);
 
 
-console.log('\n===================== Transaction with Dilithium signature =====================\n')
+console.log('\n===================== Transaction with Dilithium signature =====================\n');
 
 console.log(signedDilithiumTx);
 
-console.log('\n===================== Transaction with BLISS signature =====================\n')
+console.log('\n===================== Transaction with BLISS signature =====================\n');
 
 // Or BLISS
 

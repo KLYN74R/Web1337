@@ -478,7 +478,7 @@ export default class {
 
         let funcRef = sigType === 'bliss' ? crypto.pqc.bliss : crypto.pqc.dilithium
 
-        transaction.sig = await funcRef.signData(this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
+        transaction.sig = await funcRef.signData(yourPrivateKey,this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee)
 
         // Return signed transaction
         return transaction

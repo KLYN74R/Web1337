@@ -45,7 +45,9 @@ let addons
 
 if(process.platform==='linux'){
 
-    addons = createRequire(import.meta.url)('path').join(__dirname,'../KLY_Addons/build/Release/BUNDLE');
+    let require = createRequire(import.meta.url)
+
+    addons = require(require('path').join(__dirname,'../KLY_Addons/build/Release/BUNDLE'));
 
 }
 
@@ -158,9 +160,9 @@ export default {
                 
             },
         
-            signData:(privateKey,message)=>addons ? addons['sign_DIL'](privateKey,message) : console.log(`Not a linux env`),
+            signData:(privateKey,message) => addons ? addons['sign_DIL'](privateKey,message) : console.log(`Not a linux env`),
 
-            verifySignature:(message,pubKey,signa)=>addons ? addons['verify_DIL'](message,pubKey,signa) : console.log(`Not a linux env`)
+            verifySignature:(message,pubKey,signa) => addons ? addons['verify_DIL'](message,pubKey,signa) : console.log(`Not a linux env`)
 
         },
 
@@ -181,9 +183,9 @@ export default {
 
             },
 
-            signData:(privateKey,message)=>addons ? addons['sign_BLISS'](privateKey,message) : console.log(`Not a linux env`),
+            signData:(privateKey,message) => addons ? addons['sign_BLISS'](privateKey,message) : console.log(`Not a linux env`),
 
-            verifySignature:(message,pubKey,signa)=>addons ? addons['verify_BLISS'](message,pubKey,signa) : console.log(`Not a linux env`)
+            verifySignature:(message,pubKey,signa) => addons ? addons['verify_BLISS'](message,pubKey,signa) : console.log(`Not a linux env`)
 
 
         }
