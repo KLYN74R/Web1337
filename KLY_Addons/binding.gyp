@@ -3,7 +3,7 @@
         {
            "target_name": "BUNDLE",
 
-           "sources": ["bundle.cc","sha256.h","sha256.cc"],
+           "sources": ["bundle.cc"],
 
             "conditions":[
                 ["OS=='linux'", {

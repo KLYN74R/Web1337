@@ -74,9 +74,6 @@ Developed by @Vlad@ Chernenko
 #include "sike.h"
 #include "sidh.h"
 
-//Hash functions
-#include "sha256.h"
-
 //Public Key Encryption
 #include "kyber_pke.h"
 
@@ -88,10 +85,6 @@ Developed by @Vlad@ Chernenko
 using namespace std;
 using namespace v8;
 
-
-//___________________________________________________CONSTANTS POOL_______________________________________________________
-
-SHA256 sha256;
 
 const char* ToCString(const String::Utf8Value& value){
 
@@ -336,32 +329,6 @@ void verify_BLISS(const FunctionCallbackInfo<Value>& args){
     char* result = verifyBLISS(message,publicKey,signature);
     
     args.GetReturnValue().Set(String::NewFromUtf8(isolate,result,NewStringType::kNormal).ToLocalChecked());
-}
-
-
-
-
-
-/*
-
-██   ██  █████  ███████ ██   ██ ███████ ███████ 
-██   ██ ██   ██ ██      ██   ██ ██      ██      
-███████ ███████ ███████ ███████ █████   ███████ 
-██   ██ ██   ██      ██ ██   ██ ██           ██ 
-██   ██ ██   ██ ███████ ██   ██ ███████ ███████
-
-*/
-
-
-void SHA256(const FunctionCallbackInfo<Value>& a){
-
-   Isolate* isolate=a.GetIsolate();
-
-   String::Utf8Value s(isolate,a[0]);
-   
-   string c(*s);
-
-   a.GetReturnValue().Set(String::NewFromUtf8(isolate,sha256(c).c_str(),NewStringType::kNormal).ToLocalChecked());
 }
 
 
@@ -645,10 +612,6 @@ void Initialize(Local<Object> exports){
   NODE_SET_METHOD(exports,"gen_KYBER_SharedSender",get_KYBER_SharedSender);
   
   NODE_SET_METHOD(exports,"gen_KYBER_SharedRecepient",get_KYBER_SharedRecepient);
-
-
-  //SHA256
-  NODE_SET_METHOD(exports,"sha256",SHA256);
 
 
   //SIKE
