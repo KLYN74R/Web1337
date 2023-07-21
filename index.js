@@ -32,11 +32,12 @@
 */
 
 
-import tbls from './crypto_primitives/threshold/tbls.js'
+
 import crypto from './crypto_primitives/crypto.js'
-import bls from './crypto_primitives/bls.js'
 import {hash} from 'blake3-wasm'
 import fetch from 'node-fetch'
+
+
 
 
 // For future support of WSS
@@ -82,9 +83,11 @@ const SPECIAL_OPERATIONS={
 }
 
 
+
 export {TX_TYPES,SIG_TYPES,SPECIAL_OPERATIONS}
 
-export {bls,tbls,crypto}
+export {crypto}
+
 
 export default class {
 
@@ -127,7 +130,7 @@ export default class {
     }
 
 
-    BLAKE3=(input,length=64)=>hash(input,{length}).toString('hex')
+    BLAKE3=(input,length)=>hash(input,{length}).toString('hex')
 
 
     #GET_REQUEST_TO_NODE=url=>{
@@ -203,14 +206,14 @@ export default class {
      * 
      * @typedef {Object} CheckpointHeader
      * @property {Number} id - index of checkpoint to keep sequence
-     * @property {String} payloadHash - 512-bit BLAKE3 hash of payload
+     * @property {String} payloadHash - 256-bit BLAKE3 hash of payload
      * @property {String} quorumAggregatedSignersPubKey - Base58 encoded BLS aggregated pubkey of quorum members who agreed and sign this checkpoint
      * @property {String} quorumAggregatedSignature - Base64 encoded BLS aggregated signature of quorum members who agreed and sign this checkpoint
      * @property {Array.<string>} afkVoters - array of pubkeys of quorum members who didn't take part in signing process
      * 
      * 
      * @typedef {Object} CheckpointPayload
-     * @property {String} prevCheckpointPayloadHash - 512-bit BLAKE3 hash of previous checkpoint(since it's chain)
+     * @property {String} prevCheckpointPayloadHash - 256-bit BLAKE3 hash of previous checkpoint(since it's chain)
      * @property {PoolsMetadata} poolsMetadata - metadata of all registered pools for current epoch
      * @property {Array.<Object>} operations - array of special operations that must be runned after checkpoint
      * @property {Object} otherSymbiotes - state fixation of other symbiotes in ecosystem
@@ -343,7 +346,7 @@ export default class {
 
         let transaction = this.getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.TX,nonce,fee,payload)
 
-        transaction.sig = await crypto.kly.signEd25519(this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
+        transaction.sig = await crypto.ed25519.signEd25519(this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
 
         // Return signed transaction
         return transaction
@@ -383,34 +386,34 @@ export default class {
     }
 
 
-    signDataForMultisigTxAsOneOfTheActiveSigners=async(originSubchain,yourBLSPrivateKey,activeAggregatedPubkey,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
+    buildPartialSignatureWithTxData=async(hexID,sharedPayload,originSubchain,nonce,fee,recipient,amountInKLY,rev_t)=>{
 
         let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
 
-        let payload={
-
-            type:SIG_TYPES.MULTISIG,
-            active:activeAggregatedPubkey,
-            afk:afkSigners,
+        let payloadForTblsTransaction = {
 
             to:recipient,
-            amount:amountInKLY
+
+            amount:amountInKLY,
+            
+            type:SIG_TYPES.TBLS
 
         }
 
-        if(typeof rev_t==='number') payload.rev_t = rev_t
+        if(typeof rev_t==='number') payloadForTblsTransaction.rev_t = rev_t
 
-        let dataToSign = this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee
+        let dataToSign = this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payloadForTblsTransaction)+nonce+fee
 
-        let signature = await bls.singleSig(dataToSign,yourBLSPrivateKey)
+        let partialSignature = crypto.tbls.signTBLS(hexID,sharedPayload,dataToSign)
         
-        return signature
+        return partialSignature
 
     }
 
-    createThresholdTransaction=async(tblsRootPubkey,sigSharesArray,nonce,recipient,amountInKLY,fee,rev_t)=>{
+
+    createThresholdTransaction = async(tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)=>{
     
-        let tblsPayload={
+        let tblsPayload = {
     
             to:recipient,
     
@@ -420,7 +423,8 @@ export default class {
         
         }
     
-        if(typeof rev_t==='number') payload.rev_t = rev_t
+        if(typeof rev_t==='number') tblsPayload.rev_t = rev_t
+
 
         let thresholdSigTransaction = this.getTransactionTemplate(
             
@@ -434,13 +438,14 @@ export default class {
             
         )
         
-        thresholdSigTransaction.sig=tbls.buildSignature(sigSharesArray)
+        thresholdSigTransaction.sig = crypto.tbls.buildSignature(partialSignaturesArray)
  
         return thresholdSigTransaction
  
     }
 
-    createPostQuantumTransaction=async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
+
+    createPostQuantumTransaction = async(yourAddress,yourPubKey,yourPrivateKey,recipient,amountInKLY,rev_t)=>{
 
 
 

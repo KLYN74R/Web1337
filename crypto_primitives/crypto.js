@@ -1,21 +1,65 @@
 import {derivePath} from 'ed25519-hd-key'
+
+import tbls from './threshold/tbls.js'
+
+import {createRequire} from 'module'
+
+import {hash} from 'blake3-wasm'
+
 import Base58 from 'base-58'
+
 import nacl from 'tweetnacl'
+
 import crypto from 'crypto'
+
+import bls from './bls.js'
+
 import bip39 from 'bip39'
+
 import Web3 from 'web3'
 
 
 
 
-let web3=new Web3()
+global.__dirname = await import('path').then(async mod=>
+  
+    mod.dirname(
+      
+      (await import('url')).fileURLToPath(import.meta.url)
+      
+    )
+
+)
+
+
+
+
+const web3 = new Web3() // this will be used to generate EVM addresses
+
+const BLAKE3=(input,length=32)=>hash(input,{length}).toString('hex')
+
+
+
+
+let addons
+
+if(process.platform==='linux'){
+
+    addons = createRequire(import.meta.url)('path').join(__dirname,'../KLY_Addons/build/Release/BUNDLE');
+
+}
+
+
+
+
+
 
 
 
 export default {
 
 
-    kly:{
+    ed25519:{
 
         generateDefaultEd25519Keypair:async(mnemonic,bip44Path,mnemoPass)=>{
 
@@ -78,16 +122,66 @@ export default {
 
     },
 
+    bls,
+
+    tbls,
+
     evm:{
 
         generate:()=>{
         
-            let {address,privateKey}=web3.eth.accounts.create()
+            let {address,privateKey} = web3.eth.accounts.create()
             
             return {address,privateKey}
         
         }
     
+    },
+
+
+    pqc:{
+
+
+        dilithium:{
+
+            // generate Dilithium PQC keypair.BLAKE3 hash of pubkey is address. Result => {private,public,address}
+        
+            generateDilithiumKeypair:()=>{
+                
+                let [pubKey,privateKey] = addons['gen_DIL']().split(':')
+
+                return {pubKey,privateKey,address:BLAKE3(pubKey)}    
+
+            },
+        
+            signWithDilithium:(privateKey,message)=>addons['sign_DIL'](privateKey,message),
+
+            verifyDilithiumSignature:(message,pubKey,signa)=>addons['verify_DIL'](message,pubKey,signa)
+
+        },
+
+
+        bliss:{
+
+            // generate BLISS PQC keypair.BLAKE3 hash of pubkey is address. Result => {private,public,address}
+
+            generateBlissKeypair:()=>{
+
+                let [pubKey,privateKey] = addons['gen_DIL']().split(':')
+
+                return {pubKey,privateKey,address:BLAKE3(pubKey)}
+
+            },
+
+            signWithBliss:(privateKey,message)=>addons['sign_BLISS'](privateKey,message),
+
+            verifyBlissSignature:(message,pubKey,signa)=>addons['verify_BLISS'](message,pubKey,signa)
+
+
+        }
+
+        
+
     }
 
 }

@@ -10,7 +10,9 @@
   },
   "author": "KlyntarTeam",
   "license": "Apache-2.0",
-  "scripts": {},
+  "scripts": {
+    "build": "pnpm install --unsafe-perm ; chmod 700 build_addons.sh ; ./build_addons.sh"
+  },
   "keywords": [],
   "bugs": {
     "url": "https://github.com/KLYN74R/KlyntarCore/issues"

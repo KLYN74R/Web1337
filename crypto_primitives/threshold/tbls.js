@@ -9,7 +9,7 @@ await blsA.init()
 
 export default {
 
-    generateTBLS:(threshold,myPubId,pubKeysArr,isCLI)=>{
+    generateTBLS:(threshold,myPubId,pubKeysArr)=>{
 
         let signers=pubKeysArr.map(id => {
 
@@ -29,48 +29,20 @@ export default {
         //Verification vector можем публиковать - для каждого в группе. Только запоминать порядок индексов
         let serializedVerificationVector=verificationVector.map(x=>x.serializeToHexStr())
         let serializedSecretKeyContribution=secretKeyContribution.map(x=>x.serializeToHexStr())
+        let serializedId=signers[pubKeysArr.indexOf(myPubId)].id.serializeToHexStr()        
 
-        let jsonVerificationVector=JSON.stringify(serializedVerificationVector)
-        let serializedId=signers[pubKeysArr.indexOf(myPubId)].id.serializeToHexStr()
-
-
-        if(isCLI){
-
-            //console.log('Verification Vector SERIALIZE ', serArr.map(x=>blsA.deserializeHexStrToPublicKey(x)))
-            //console.log('SecretKey contribution SERIALIZE ', secKeyArr.map(x=>blsA.deserializeHexStrToSecretKey(x)))
-            console.log('\n\n==================== RESULT ====================\n')
-
-
-            console.log(`Send this verification vector to all group members => \x1b[32;1m${jsonVerificationVector}\x1b[0m`)
-            console.log(`\n\nSend this secret shares to appropriate user(one per user)`)
-
-            
-            serializedSecretKeyContribution.forEach((share,index)=>{
-
-                console.log(`To user \x1b[36;1m${pubKeysArr[index]}\x1b[0m => \x1b[32;1m${share}\x1b[0m`)
-
-            })
-
-            //console.log(`\n\nYour creds ${JSON.stringify(signers[pubKeysArr.indexOf(myPubId)])}`)
-            console.log(`\n\nYour ID \x1b[36;1m${serializedId}\x1b[0m`)
-
-            console.log('\nP.S:Stored to <filepath>.json')
-
-        }
-        
-
-        return JSON.stringify({
+        return {
         
             verificationVector:serializedVerificationVector,
             secretShares:serializedSecretKeyContribution,
             id:serializedId
         
-        })
+        }
 
     },
 
     
-    verifyShareTBLS:(hexMyId,hexSomeSignerSecretKeyContribution,hexSomeSignerVerificationVector,isCLI)=>{
+    verifyShareTBLS:(hexMyId,hexSomeSignerSecretKeyContribution,hexSomeSignerVerificationVector)=>{
         
         //Deserialize at first from hex
         let someSignerSecretKeyContribution=blsA.deserializeHexStrToSecretKey(hexSomeSignerSecretKeyContribution)
@@ -82,15 +54,8 @@ export default {
         // Теперь когда нужный член групы получил этот secret sk,то он проверяет его по VSS с помощью verification vector of the sender и сохраняет его если всё ок
         const isVerified = dkg.verifyContributionShare(blsA,myId,someSignerSecretKeyContribution,someSignerVerificationVector)
      
-        if(isCLI){
-
-            if(!isVerified) console.log(`\n\n\x1b[31mInvalid\x1b[0m share received from user with verification vector ${hexSomeSignerVerificationVector}`)
-        
-            else console.log(`\n\nShare ${hexSomeSignerSecretKeyContribution} is \x1b[32mvalid\x1b[0m - please,store it`)     
-
-        }
-     
         return isVerified
+     
         //Store shares somewhere with information who send(which id) has sent this share for you
     
     },    
@@ -104,17 +69,7 @@ export default {
      *   @param {Array<Array<string>>} hexVerificationVectors array of serialized verification vectors e.g. [ [hex1,hex2], [hex3,hex4], ...] where [hexA,hexB] - some verification vector 
      * 
      */
-    deriveGroupPubTBLS:(hexVerificationVectors,isCLI)=>{
-
-        if(isCLI){
-
-            console.log(hexVerificationVectors.map(subArr=>
-
-                subArr.map(x=>blsA.deserializeHexStrToPublicKey(x))
-    
-            ))    
-
-        }
+    deriveGroupPubTBLS:(hexVerificationVectors)=>{
 
         const groupVvec = dkg.addVerificationVectors(hexVerificationVectors.map(subArr=>
 
@@ -123,8 +78,6 @@ export default {
         ))
         
         const groupPublicKey = groupVvec[0].serializeToHexStr()
-
-        if(isCLI) console.log(`Group TBLS pubKey is ${groupPublicKey}`)
         
         //blsA.deserializeHexStrToPublicKey(groupsPublicKey.serializeToHexStr())// - to deserialize
 
@@ -161,7 +114,7 @@ export default {
     }
 
 */
-    signTBLS:(hexMyId,sharedPayload,message,isCLI)=>{
+    signTBLS:(hexMyId,sharedPayload,message)=>{
 
         //Derive group TBLS secret key for this signer
         let groupSecret=dkg.addContributionShares(
@@ -173,11 +126,9 @@ export default {
 
         )
 
-        if(isCLI) console.log(`\n\nDerived group secret ${groupSecret.serializeToHexStr()}`)
-
         //The rest of t signers do the same with the same message
 
-        return JSON.stringify({sigShare:groupSecret.sign(message).serializeToHexStr(),id:hexMyId})
+        return {sigShare:groupSecret.sign(message).serializeToHexStr(),id:hexMyId}
 
     },
 
@@ -188,14 +139,14 @@ export default {
         signaturesArray - [ {sigShare:signedShareA,id:hexIdA}, {sigShare:signedShareB,id:hexIdB},... {sigShare:signedShareX,id:hexIdX} ]
 
     */
-    buildSignature:(signaturesArray,isCLI)=>{
+    buildSignature:partialSignaturesArray=>{
 
         //Now join signatures by t signers
         const groupsSig = new blsA.Signature()
 
         let sigs=[],signersIds=[]
 
-        signaturesArray.forEach(x=>{
+        partialSignaturesArray.forEach(x=>{
 
             sigs.push(blsA.deserializeHexStrToSignature(x.sigShare))
 
@@ -204,8 +155,6 @@ export default {
         })
 
         groupsSig.recover(sigs,signersIds)
-
-        if(isCLI) console.log('Signature', groupsSig.serializeToHexStr())
     
         //blsA.deserializeHexStrToSignature(groupsSig.serializeToHexStr())
 
