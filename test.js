@@ -1,16 +1,29 @@
 import {crypto} from './index.js';
 
 
-const firstKeypairInChain = {
-    mnemonic: 'final lottery shell supply lottery doll drive flavor awesome tool matter argue',
-    bip44Path: "m/44'/7331'/0'/0'",
-    pub: '5oFCA179BeABvcUx921adoU4N9mXGGGS6DaoAwcTgFzs',
-    prv: 'MC4CAQAwBQYDK2VwBCIEIB5ghaD82U+RixQ9KuGtFwADQu1FMVl4dTWs1zd094Q2'
-}
+// const firstKeypairInChain = {
+//     mnemonic: 'final lottery shell supply lottery doll drive flavor awesome tool matter argue',
+//     bip44Path: "m/44'/7331'/0'/0'",
+//     pub: '5oFCA179BeABvcUx921adoU4N9mXGGGS6DaoAwcTgFzs',
+//     prv: 'MC4CAQAwBQYDK2VwBCIEIB5ghaD82U+RixQ9KuGtFwADQu1FMVl4dTWs1zd094Q2'
+// }
 
-console.log('0 in chain => ',await crypto.kly.generateDefaultEd25519Keypair(firstKeypairInChain.mnemonic,firstKeypairInChain.bip44Path,'HelloKlyntar'))
-console.log('1 in chain => ',await crypto.kly.generateDefaultEd25519Keypair(firstKeypairInChain.mnemonic,"m/44'/7331'/0'/1'",'HelloKlyntar'))
-console.log('2 in chain => ',await crypto.kly.generateDefaultEd25519Keypair(firstKeypairInChain.mnemonic,"m/44'/7331'/0'/2'",'HelloKlyntar'))
+// console.log('0 in chain => ',await crypto.kly.generateDefaultEd25519Keypair(firstKeypairInChain.mnemonic,firstKeypairInChain.bip44Path,'HelloKlyntar'))
+// console.log('1 in chain => ',await crypto.kly.generateDefaultEd25519Keypair(firstKeypairInChain.mnemonic,"m/44'/7331'/0'/1'",'HelloKlyntar'))
+// console.log('2 in chain => ',await crypto.kly.generateDefaultEd25519Keypair(firstKeypairInChain.mnemonic,"m/44'/7331'/0'/2'",'HelloKlyntar'))
+
+
+let blissKeyPair = crypto.pqc.bliss.generateBlissKeypair()
+
+console.log(blissKeyPair)
+
+let signa = globalThis.generateBlissSignature(blissKeyPair.privateKey,'Hello World')
+
+console.log('Signa is ',signa);
+
+console.log('Is verified => ',globalThis.verifyBlissSignature('Hello World',blissKeyPair.pubKey,signa))
+
+console.log('Is verified => ',globalThis.verifyBlissSignature('Hello World X',blissKeyPair.pubKey,signa))
 
 
 

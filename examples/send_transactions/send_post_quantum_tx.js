@@ -58,3 +58,14 @@ console.log('\n===================== Transaction with BLISS signature ==========
 let signedBlissTx = await web1337.createPostQuantumTransaction(subchain,'bliss',blissKeyPair.address,blissKeyPair.prv,nonce,recipient,amountInKLY,fee);
 
 console.log(signedBlissTx);
+
+
+await web1337.sendTransaction(signedDilithiumTx)
+
+await web1337.sendTransaction(signedBlissTx)
+
+
+// and get the receipt later. Reminder - id of tx and receipt is 256-bit BLAKE3 hash of transaction signature
+
+let receipt1 = await web1337.getTransactionReceiptById(web1337.BLAKE3(signedDilithiumTx))
+let receipt2 = await web1337.getTransactionReceiptById(web1337.BLAKE3(signedBlissTx))

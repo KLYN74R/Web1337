@@ -2,8 +2,6 @@ import {derivePath} from 'ed25519-hd-key'
 
 import tbls from './threshold/tbls.js'
 
-import {createRequire} from 'module'
-
 import {hash} from 'blake3-wasm'
 
 import Base58 from 'base-58'
@@ -19,17 +17,8 @@ import bip39 from 'bip39'
 import Web3 from 'web3'
 
 
+import '../KLY_Addons/must_have_signatures/wasm_exec.js'
 
-
-global.__dirname = await import('path').then(async mod=>
-  
-    mod.dirname(
-      
-      (await import('url')).fileURLToPath(import.meta.url)
-      
-    )
-
-)
 
 
 
@@ -37,19 +26,6 @@ global.__dirname = await import('path').then(async mod=>
 const web3 = new Web3() // this will be used to generate EVM addresses
 
 const BLAKE3=(input,length=32)=>hash(input,{length}).toString('hex')
-
-
-
-
-let addons
-
-if(process.platform==='linux'){
-
-    let require = createRequire(import.meta.url)
-
-    addons = require(require('path').join(__dirname,'../KLY_Addons/build/Release/BUNDLE'));
-
-}
 
 
 
@@ -150,19 +126,16 @@ export default {
         
             generateDilithiumKeypair:()=>{
 
-                if(addons){
+                let [pubKey,privateKey] = globalThis.generateDilithiumKeypair().split(':')
 
-                    let [pubKey,privateKey] = addons['gen_DIL']().split(':')
+                return {pubKey,privateKey,address:BLAKE3(pubKey)}
 
-                    return {pubKey,privateKey,address:BLAKE3(pubKey)}        
-
-                }else console.log(`Not a linux env`)
-                
             },
         
-            signData:(privateKey,message) => addons ? addons['sign_DIL'](privateKey,message) : console.log(`Not a linux env`),
+            signData:(privateKey,message) => globalThis.generateDilithiumSignature(privateKey,message),
 
-            verifySignature:(message,pubKey,signa) => addons ? addons['verify_DIL'](message,pubKey,signa) : console.log(`Not a linux env`)
+            verifySignature:(message,pubKey,signa) => globalThis.verifyDilithiumSignature(message,pubKey,signa)
+
 
         },
 
@@ -173,24 +146,19 @@ export default {
 
             generateBlissKeypair:()=>{
 
-                if(addons){
+                let [pubKey,privateKey] = globalThis.generateBlissKeypair().split(':')
 
-                    let [pubKey,privateKey] = addons['gen_DIL']().split(':')
-
-                    return {pubKey,privateKey,address:BLAKE3(pubKey)}
-
-                }else console.log(`Not a linux env`)
+                return {pubKey,privateKey,address:BLAKE3(pubKey)}
+               
 
             },
 
-            signData:(privateKey,message) => addons ? addons['sign_BLISS'](privateKey,message) : console.log(`Not a linux env`),
+            signData:(privateKey,message) => globalThis.generateBlissSignature(privateKey,message),
 
-            verifySignature:(message,pubKey,signa) => addons ? addons['verify_BLISS'](message,pubKey,signa) : console.log(`Not a linux env`)
+            verifySignature:(message,pubKey,signa) => globalThis.verifyBlissSignature(message,pubKey,signa)
 
 
         }
-
-        
 
     }
 
