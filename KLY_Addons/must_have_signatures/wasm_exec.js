@@ -2,23 +2,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-"use strict";
-
-
-import crypto from 'crypto'
 
 import fs from 'fs'
 
 import os from 'os'
 
-
-
-
-globalThis.crypto = {
-
-	getRandomValues:b=>crypto.randomFillSync(b)
-
-}
 
 
 

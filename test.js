@@ -1,5 +1,8 @@
 import {crypto} from './index.js';
 
+let pair = await crypto.bls.generatePrivateKey()
+
+console.log(pair)
 
 // const firstKeypairInChain = {
 //     mnemonic: 'final lottery shell supply lottery doll drive flavor awesome tool matter argue',
@@ -13,17 +16,17 @@ import {crypto} from './index.js';
 // console.log('2 in chain => ',await crypto.kly.generateDefaultEd25519Keypair(firstKeypairInChain.mnemonic,"m/44'/7331'/0'/2'",'HelloKlyntar'))
 
 
-let blissKeyPair = crypto.pqc.bliss.generateBlissKeypair()
+// let blissKeyPair = crypto.pqc.bliss.generateBlissKeypair()
 
-console.log(blissKeyPair)
+// console.log(blissKeyPair)
 
-let signa = globalThis.generateBlissSignature(blissKeyPair.privateKey,'Hello World')
+// let signa = globalThis.generateBlissSignature(blissKeyPair.privateKey,'Hello World')
 
-console.log('Signa is ',signa);
+// console.log('Signa is ',signa);
 
-console.log('Is verified => ',globalThis.verifyBlissSignature('Hello World',blissKeyPair.pubKey,signa))
+// console.log('Is verified => ',globalThis.verifyBlissSignature('Hello World',blissKeyPair.pubKey,signa))
 
-console.log('Is verified => ',globalThis.verifyBlissSignature('Hello World X',blissKeyPair.pubKey,signa))
+// console.log('Is verified => ',globalThis.verifyBlissSignature('Hello World X',blissKeyPair.pubKey,signa))
 
 
 
