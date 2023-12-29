@@ -99,13 +99,10 @@ export default class {
      * @param {String} [options.proxyURL] HTTP(s) / SOCKS proxy url
      * 
      * 
-     * @param {String} [options.hostChainTicker] ticker of hostchain of your symbiote
-     * @param {String} [options.hostchainNodeURL] endpoint to interact with hostchain's node
-     * 
      */
-    constructor(options = {symbioteID,workflowVersion,nodeURL,proxyURL,hostChainTicker,hostchainNodeURL}){
+    constructor(options = {symbioteID,workflowVersion,nodeURL,proxyURL}){
 
-        let {symbioteID,workflowVersion,nodeURL,proxyURL,hostChainTicker,hostchainNodeURL} = options;
+        let {symbioteID,workflowVersion,nodeURL,proxyURL} = options;
 
         if(proxyURL === 'string'){
 
@@ -117,15 +114,11 @@ export default class {
 
         this.symbiotes = new Map() // symbioteID => {nodeURL,workflowVersion}
 
-        this.hostchains = new Map() // ticker => endpoint(RPC,websocket,etc.)
-
 
         //Set the initial values
         this.currentSymbiote = symbioteID
 
         this.symbiotes.set(symbioteID,{nodeURL,workflowVersion})
-
-        this.hostchains.set(hostChainTicker,hostchainNodeURL)
 
     }
 
@@ -220,7 +213,6 @@ export default class {
      * 
      * 
      * @typedef {Object} Checkpoint
-     * @property {CheckpointHeader} header - the header of checkpoint that is published on hostchains
      * @property {CheckpointPayload} payload - the payload of checkpoint with all the required stuff
     
      */
@@ -563,8 +555,6 @@ export default class {
     //_________________ MUTUALISM(cross-symbiotic interaction) _______________
 
     addSymbiote=(symbioteID,workflowVersion,nodeURL)=>this.symbiotes.set(symbioteID,{nodeURL,workflowVersion})
-
-    addHostchain=(hostchainTicker,hostchainURL)=>this.hostchains.get(hostchainTicker,hostchainURL)
 
     changeCurrentSymbiote=symbioteID=>this.currentSymbiote=symbioteID
 

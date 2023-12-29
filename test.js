@@ -1,8 +1,66 @@
 import {crypto} from './index.js';
 
-let pair = await crypto.bls.generatePrivateKey()
 
-console.log(pair)
+let secretKey1 = '375c39b3ab706e40eb4f9f44fb367aa5a200a4d00a022535011e391d0f2c1e6e'
+
+let publicKey1 = crypto.bls.derivePubKeyFromHexPrivateKey(secretKey1)
+
+console.log('PubKey is ',publicKey1)
+
+let msg = 'Hello, BLS!'
+
+let signature1 = await crypto.bls.singleSig(msg,secretKey1)
+
+console.log('Signa 1 is => ',signature1)
+
+let secretKey2 = '12424ad4888e8c61626ffdc5347b9d741965923c0450135790759203106f0968'
+
+let publicKey2 = crypto.bls.derivePubKeyFromHexPrivateKey(secretKey2)
+
+console.log('PubKey 2 is ',publicKey2)
+
+let signature2 = await crypto.bls.singleSig(msg,secretKey2)
+
+console.log('Signa 2 is => ',signature2)
+
+// Aggregate public keys & signatures
+
+let rootPub = await crypto.bls.aggregatePublicKeys([publicKey1,publicKey2])
+
+console.log('Rootpub is => ',rootPub)
+
+
+let aggregatedSignature = await crypto.bls.aggregateSignatures([signature1,signature2])
+
+console.log('Aggregated signa is => ',aggregatedSignature)
+
+console.log('Is aggregated signa ok ? => ',await crypto.bls.singleVerify(msg,rootPub,aggregatedSignature))
+
+console.log('Is threshold signa ok ? => ',await crypto.bls.verifyThresholdSignature(publicKey1,[publicKey2],rootPub,msg,signature1,1))
+
+
+
+
+// import { Wallet } from 'ethers';
+
+// // Ваш ID цепи (chainId)
+// const chainId = 7331; // Например, 1 для Ethereum Mainnet
+
+// // Создайте новый кошелек
+// const wallet = Wallet.createRandom({chainId});
+
+
+
+// // Выведите приватный и публичный ключи
+// console.log('Private Key:', wallet.privateKey);
+// console.log('Public Key:', wallet.address);
+
+// console.log(wallet.mnemonic)
+
+// console.log(Wallet.fromPhrase(wallet.mnemonic.phrase,{chainId}))
+
+// console.log(Wallet.fromPhrase(wallet.mnemonic.phrase))
+
 
 // const firstKeypairInChain = {
 //     mnemonic: 'final lottery shell supply lottery doll drive flavor awesome tool matter argue',
