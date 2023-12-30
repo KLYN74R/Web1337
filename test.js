@@ -1,42 +1,65 @@
 import {crypto} from './index.js';
 
 
-let secretKey1 = '375c39b3ab706e40eb4f9f44fb367aa5a200a4d00a022535011e391d0f2c1e6e'
+let threshold = 2; // 2/3
 
-let publicKey1 = crypto.bls.derivePubKeyFromHexPrivateKey(secretKey1)
+let myPubId = 1; // our ID
 
-console.log('PubKey is ',publicKey1)
-
-let msg = 'Hello, BLS!'
-
-let signature1 = await crypto.bls.singleSig(msg,secretKey1)
-
-console.log('Signa 1 is => ',signature1)
-
-let secretKey2 = '12424ad4888e8c61626ffdc5347b9d741965923c0450135790759203106f0968'
-
-let publicKey2 = crypto.bls.derivePubKeyFromHexPrivateKey(secretKey2)
-
-console.log('PubKey 2 is ',publicKey2)
-
-let signature2 = await crypto.bls.singleSig(msg,secretKey2)
-
-console.log('Signa 2 is => ',signature2)
-
-// Aggregate public keys & signatures
-
-let rootPub = await crypto.bls.aggregatePublicKeys([publicKey1,publicKey2])
-
-console.log('Rootpub is => ',rootPub)
+let pubKeysArr = [1,2,3]; // array of identifiers of all members
 
 
-let aggregatedSignature = await crypto.bls.aggregateSignatures([signature1,signature2])
+let {verificationVector: verificationVector1,secretShares: secretShares1,id: id1} = crypto.tbls.generateTBLS(threshold,myPubId,pubKeysArr);
 
-console.log('Aggregated signa is => ',aggregatedSignature)
 
-console.log('Is aggregated signa ok ? => ',await crypto.bls.singleVerify(msg,rootPub,aggregatedSignature))
+console.log('Use with VV => ',verificationVector1);
+console.log('Array of secret shares to share among friends => ',secretShares1);
+console.log('Your id => ',id1);
 
-console.log('Is threshold signa ok ? => ',await crypto.bls.verifyThresholdSignature(publicKey1,[publicKey2],rootPub,msg,signature1,1))
+
+let {verificationVector: verificationVector2,secretShares: secretShares2,id: id2} = crypto.tbls.generateTBLS(threshold,2,pubKeysArr);
+let {verificationVector: verificationVector3,secretShares: secretShares3,id: id3} = crypto.tbls.generateTBLS(threshold,3,pubKeysArr);
+
+let rootPub = crypto.tbls.deriveGroupPubTBLS([verificationVector1,verificationVector2,verificationVector3])
+
+console.log(rootPub)
+
+
+// let secretKey1 = '375c39b3ab706e40eb4f9f44fb367aa5a200a4d00a022535011e391d0f2c1e6e'
+
+// let publicKey1 = crypto.bls.derivePubKeyFromHexPrivateKey(secretKey1)
+
+// console.log('PubKey is ',publicKey1)
+
+// let msg = 'Hello, BLS!'
+
+// let signature1 = await crypto.bls.singleSig(msg,secretKey1)
+
+// console.log('Signa 1 is => ',signature1)
+
+// let secretKey2 = '12424ad4888e8c61626ffdc5347b9d741965923c0450135790759203106f0968'
+
+// let publicKey2 = crypto.bls.derivePubKeyFromHexPrivateKey(secretKey2)
+
+// console.log('PubKey 2 is ',publicKey2)
+
+// let signature2 = await crypto.bls.singleSig(msg,secretKey2)
+
+// console.log('Signa 2 is => ',signature2)
+
+// // Aggregate public keys & signatures
+
+// let rootPub = await crypto.bls.aggregatePublicKeys([publicKey1,publicKey2])
+
+// console.log('Rootpub is => ',rootPub)
+
+
+// let aggregatedSignature = await crypto.bls.aggregateSignatures([signature1,signature2])
+
+// console.log('Aggregated signa is => ',aggregatedSignature)
+
+// console.log('Is aggregated signa ok ? => ',await crypto.bls.singleVerify(msg,rootPub,aggregatedSignature))
+
+// console.log('Is threshold signa ok ? => ',await crypto.bls.verifyThresholdSignature(publicKey1,[publicKey2],rootPub,msg,signature1,1))
 
 
 
