@@ -17,9 +17,6 @@ dependencies:
   bls-eth-wasm:
     specifier: ^1.1.1
     version: 1.1.1
-  bls-wasm:
-    specifier: ^1.0.1
-    version: 1.0.1
   ed25519-hd-key:
     specifier: ^1.3.0
     version: 1.3.0
@@ -438,10 +435,6 @@ packages:
 
   /bls-eth-wasm@1.1.1:
     resolution: {integrity: sha512-yaoOHCgjICZc2qTpYCvIkJ6L4N2MXBNmdhIpTZGmKZOUc3mmU941EV95qMK02apyYRSKuCydPuCN3fK4o24C1g==}
-    dev: false
-
-  /bls-wasm@1.0.1:
-    resolution: {integrity: sha512-Q4SZytUG++QhxgKlFTruRRRMCwpItsMIzm4JP75M2aMj1oM0YPnFL3s0UOkZr3bBAD8zq7qOpzN68JGYA/8dKg==}
     dev: false
 
   /bluebird@3.7.2:
