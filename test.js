@@ -1,27 +1,87 @@
-import {crypto} from './index.js';
+// import {crypto} from './index.js';
 
 
-let threshold = 2; // 2/3
+// let threshold = 2; // 2/3
 
-let myPubId = 1; // our ID
+// let myPubId = 1; // our ID
 
-let pubKeysArr = [1,2,3]; // array of identifiers of all members
-
-
-let {verificationVector: verificationVector1,secretShares: secretShares1,id: id1} = crypto.tbls.generateTBLS(threshold,myPubId,pubKeysArr);
+// let pubKeysArr = [1,2,3]; // array of identifiers of all members
 
 
-console.log('Use with VV => ',verificationVector1);
-console.log('Array of secret shares to share among friends => ',secretShares1);
-console.log('Your id => ',id1);
+// let {verificationVector: verificationVector1,secretShares: secretShares1,id: id1} = crypto.tbls.generateTBLS(threshold,myPubId,pubKeysArr);
 
 
-let {verificationVector: verificationVector2,secretShares: secretShares2,id: id2} = crypto.tbls.generateTBLS(threshold,2,pubKeysArr);
-let {verificationVector: verificationVector3,secretShares: secretShares3,id: id3} = crypto.tbls.generateTBLS(threshold,3,pubKeysArr);
+// console.log('Use with VV => ',verificationVector1);
+// console.log('Array of secret shares to share among friends => ',secretShares1);
+// console.log('Your id => ',id1);
 
-let rootPub = crypto.tbls.deriveGroupPubTBLS([verificationVector1,verificationVector2,verificationVector3])
 
-console.log(rootPub)
+// let {verificationVector: verificationVector2,secretShares: secretShares2,id: id2} = crypto.tbls.generateTBLS(threshold,2,pubKeysArr);
+// let {verificationVector: verificationVector3,secretShares: secretShares3,id: id3} = crypto.tbls.generateTBLS(threshold,3,pubKeysArr);
+
+// let rootPub = crypto.tbls.deriveGroupPubTBLS([verificationVector1,verificationVector2,verificationVector3])
+
+// console.log(rootPub)
+
+
+import Web1337 from './index.js';
+
+
+let web1337 = new Web1337({
+
+    symbioteID:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    workflowVersion:0,
+    nodeURL: 'http://localhost:7332'
+
+});
+
+
+console.log(await web1337.getBlockByBlockID('0:9GQ46rqY238rk2neSwgidap9ww5zbAN4dyqyC7j5ZnBK:4'))
+
+
+web1337.getBlockBySID
+
+
+// import {crypto} from './index.js';
+
+
+// let blsPrivateKey1 = await crypto.bls.generatePrivateKey()
+
+// let blsPubKey1 = await crypto.bls.derivePubKeyFromHexPrivateKey(blsPrivateKey1)
+
+// console.log(blsPrivateKey1)
+// console.log(blsPubKey1)
+
+
+
+// let dilithium = crypto.pqc.dilithium.generateDilithiumKeypair()
+
+// // console.log(dilithium)
+
+// let signa = crypto.pqc.dilithium.signData(dilithium.privateKey,'Hello World')
+
+// // console.log('Signa is ',signa);
+
+// console.log('Is verified => ',crypto.pqc.dilithium.verifySignature('Hello World',dilithium.pubKey,signa))
+
+
+// console.time('Verify 1000 PQC signatures')
+
+// for(let i=0;i<1000;i++){
+
+//     crypto.pqc.dilithium.verifySignature('Hello World',dilithium.pubKey,signa)
+
+// }
+
+// console.timeEnd('Verify 1000 PQC signatures')
+
+
+
+
+// let ed25519Keypair = await crypto.ed25519.generateDefaultEd25519Keypair()
+
+// console.log(ed25519Keypair)
+
 
 
 // let secretKey1 = '375c39b3ab706e40eb4f9f44fb367aa5a200a4d00a022535011e391d0f2c1e6e'
@@ -174,15 +234,15 @@ console.log(rootPub)
 // const amountInKLY = 13.37
 
 
-// let signedTx = await web1337.createDefaultTransaction(subchain,from,myPrivateKey,nonce,recipient,fee,amountInKLY,1)
+// let signedTx = await web1337.createDefaultTransaction(shard,from,myPrivateKey,nonce,recipient,fee,amountInKLY,1)
 
 // console.log(signedTx)
 
-// const subchain = '7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta'
+// const shard = '7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta'
 
 // const recipient = '68Bpgi6MbRX9q3T9h8DDWomPGu85HqWSfPMT23r6g29xyn1dN7qfquwxpfFNMdMpU1'
 
-// let accountInfo  = await web1337.getFromState(subchain,recipient)
+// let accountInfo  = await web1337.getFromState(shard,recipient)
 
 // console.log('Account ',accountInfo)
 

@@ -32,7 +32,7 @@ let blissKeyPair = {
 
 
 
-const subchain = '7GPupbq1vtKUgaqVeHiDbEJcxS7sSjwPnbht4eRaDBAEJv8ZKHNCSu2Am3CuWnHjta';
+const shard = '9GQ46rqY238rk2neSwgidap9ww5zbAN4dyqyC7j5ZnBK';
 
 const recipient = 'nXSYHp74u88zKPiRi7t22nv4WCBHXUBpGrVw3V93f2s';
 
@@ -44,7 +44,7 @@ const amountInKLY = 13.37;
 
 
 
-let signedDilithiumTx = await web1337.createPostQuantumTransaction(subchain,'dilithium',dilithiumKeyPair.address,dilithiumKeyPair.prv,nonce,recipient,amountInKLY,fee);
+let signedDilithiumTx = await web1337.createPostQuantumTransaction(shard,'dilithium',dilithiumKeyPair.address,dilithiumKeyPair.prv,nonce,recipient,amountInKLY,fee);
 
 
 console.log('\n===================== Transaction with Dilithium signature =====================\n');
@@ -55,7 +55,7 @@ console.log('\n===================== Transaction with BLISS signature ==========
 
 // Or BLISS
 
-let signedBlissTx = await web1337.createPostQuantumTransaction(subchain,'bliss',blissKeyPair.address,blissKeyPair.prv,nonce,recipient,amountInKLY,fee);
+let signedBlissTx = await web1337.createPostQuantumTransaction(shard,'bliss',blissKeyPair.address,blissKeyPair.prv,nonce,recipient,amountInKLY,fee);
 
 console.log(signedBlissTx);
 

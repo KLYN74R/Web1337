@@ -92,11 +92,7 @@ export default {
     
             )
     
-        ).catch(e=>false),
-
-        generatePostQuantumBLISSKeypair:()=>{},
-
-        generatePostQuantumDilithiumKeypair:()=>{},
+        ).catch(e=>false)
 
     },
 

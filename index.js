@@ -194,7 +194,7 @@ export default class {
      * @typedef {Object} PoolsMetadata
      * @property {Number} index - index of finalized blocks by this checkpoint
      * @property {String} hash - hash of block with this index
-     * @property {Boolean} isReserve - pointer if pool is reserve. true - it's reserve pool, false - it's prime pool with own subchain
+     * @property {Boolean} isReserve - pointer if pool is reserve. true - it's reserve pool, false - it's prime pool with own shard
      * 
      * 
      * @typedef {Object} CheckpointHeader
@@ -240,15 +240,13 @@ export default class {
 
     getBlockByBlockID=blockID=>this.#GET_REQUEST_TO_NODE('/block/'+blockID)
 
-    getBlockBySID=(subchain,sid)=>this.#GET_REQUEST_TO_NODE(`/block_by_sid/${subchain}/${sid}`)
-
-    getBlockByGRID=grid=>this.#GET_REQUEST_TO_NODE('/block_by_grid/'+grid)
+    getBlockBySID=(shard,sid)=>this.#GET_REQUEST_TO_NODE(`/block_by_sid/${shard}/${sid}`)
     
 
     //____________________Get data from state____________________
 
 
-    getFromState=(subchain,cellID)=>this.#GET_REQUEST_TO_NODE(`/state/${subchain}/${cellID}`)
+    getFromState=(shard,cellID)=>this.#GET_REQUEST_TO_NODE(`/state/${shard}/${cellID}`)
 
     getTransactionReceiptById=txID=>this.#GET_REQUEST_TO_NODE('/tx_receipt/'+txID)
 
@@ -318,7 +316,7 @@ export default class {
 
     // Transactions. Default, Multisig, Threshold, Post-quantum
 
-    createDefaultTransaction=async(originSubchain,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>{
+    createDefaultTransaction=async(originShard,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>{
 
         let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
     
@@ -338,7 +336,7 @@ export default class {
 
         let transaction = this.getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.TX,nonce,fee,payload)
 
-        transaction.sig = await crypto.ed25519.signEd25519(this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
+        transaction.sig = await crypto.ed25519.signEd25519(this.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
 
         // Return signed transaction
         return transaction
@@ -378,7 +376,7 @@ export default class {
     }
 
 
-    buildPartialSignatureWithTxData=async(hexID,sharedPayload,originSubchain,nonce,fee,recipient,amountInKLY,rev_t)=>{
+    buildPartialSignatureWithTxData=async(hexID,sharedPayload,originShard,nonce,fee,recipient,amountInKLY,rev_t)=>{
 
         let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
 
@@ -394,7 +392,7 @@ export default class {
 
         if(typeof rev_t==='number') payloadForTblsTransaction.rev_t = rev_t
 
-        let dataToSign = this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payloadForTblsTransaction)+nonce+fee
+        let dataToSign = this.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payloadForTblsTransaction)+nonce+fee
 
         let partialSignature = crypto.tbls.signTBLS(hexID,sharedPayload,dataToSign)
         
@@ -448,7 +446,7 @@ export default class {
      * @param {*} rev_t 
      * @returns 
      */
-    createPostQuantumTransaction = async(originSubchain,sigType,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)=>{
+    createPostQuantumTransaction = async(originShard,sigType,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)=>{
 
         let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
     
@@ -470,7 +468,7 @@ export default class {
 
         let funcRef = sigType === 'bliss' ? crypto.pqc.bliss : crypto.pqc.dilithium
 
-        transaction.sig = await funcRef.signData(yourPrivateKey,this.currentSymbiote+workflowVersion+originSubchain+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee)
+        transaction.sig = await funcRef.signData(yourPrivateKey,this.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee)
 
         // Return signed transaction
         return transaction
