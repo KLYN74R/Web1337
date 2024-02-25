@@ -27,6 +27,14 @@
 import Web1337 from './index.js';
 
 
+let keypair = {
+
+    pubkey:"9GQ46rqY238rk2neSwgidap9ww5zbAN4dyqyC7j5ZnBK",
+    privateKey:"MC4CAQAwBQYDK2VwBCIEILdhTMVYFz2GP8+uKUA+1FnZTEdN8eHFzbb8400cpEU9"
+
+}
+
+
 let web1337 = new Web1337({
 
     symbioteID:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -36,10 +44,75 @@ let web1337 = new Web1337({
 });
 
 
-console.log(await web1337.getBlockByBlockID('0:9GQ46rqY238rk2neSwgidap9ww5zbAN4dyqyC7j5ZnBK:4'))
+
+// console.log(await web1337.getBlockByBlockID('0:9GQ46rqY238rk2neSwgidap9ww5zbAN4dyqyC7j5ZnBK:264'))
 
 
-web1337.getBlockBySID
+
+
+//console.log(await web1337.getBlockByBlockID('0:9GQ46rqY238rk2neSwgidap9ww5zbAN4dyqyC7j5ZnBK:4'))
+
+
+
+// let nonce = 201
+
+// let txs = []
+
+// for(let i = 0 ; i < 2000 ; i++ ){
+
+//     let ed25519Tx = await web1337.createDefaultTransaction('9GQ46rqY238rk2neSwgidap9ww5zbAN4dyqyC7j5ZnBK',keypair.pubkey,keypair.privateKey,nonce,'3JAeBnsMedzxjCMNWQYcAXtwGVE9A5DBQyXgWBujtL9R',1,1)
+
+//     nonce++
+
+//     txs.push(ed25519Tx)
+
+
+// }
+
+// console.log('Recepient account => ',await web1337.getFromState('9GQ46rqY238rk2neSwgidap9ww5zbAN4dyqyC7j5ZnBK','3JAeBnsMedzxjCMNWQYcAXtwGVE9A5DBQyXgWBujtL9R'))
+
+
+
+
+// console.log(`Created ${txs.length} transactions. Going to send it`)
+
+
+
+// for(let tx of txs){
+
+//     let txStatus = await web1337.sendTransaction(tx)
+
+//     console.log('Tx status => ',txStatus)
+
+// }
+
+
+
+// for(let tx of txs){
+
+//     let receipt = await web1337.getTransactionReceiptById(web1337.BLAKE3(tx.sig));
+
+//     console.log(`[${tx.nonce}] Status => `,receipt);
+// }
+
+
+
+
+// console.log(ed25519Tx)
+
+// let txStatus = await web1337.sendTransaction(ed25519Tx)
+
+// console.log('Tx status => ',txStatus)
+
+// After that - you can check the tx receipt
+// TxID - it's a BLAKE3 hash of transaction signature
+// let receipt = await web1337.getTransactionReceiptById(web1337.BLAKE3(ed25519Tx.sig));
+
+// console.log(receipt);
+
+// console.log('Recepient account => ',await web1337.getFromState('9GQ46rqY238rk2neSwgidap9ww5zbAN4dyqyC7j5ZnBK','3JAeBnsMedzxjCMNWQYcAXtwGVE9A5DBQyXgWBujtL9R'))
+
+// console.log(await web1337.getBlockBySID('9GQ46rqY238rk2neSwgidap9ww5zbAN4dyqyC7j5ZnBK','4'))
 
 
 // import {crypto} from './index.js';
