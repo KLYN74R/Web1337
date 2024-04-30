@@ -1,6 +1,6 @@
-module must_have_signatures
+module must_have
 
-go 1.18
+go 1.21
 
 require (
 	github.com/LoCCS/bliss v0.0.0-20180223025823-07585ac9b817

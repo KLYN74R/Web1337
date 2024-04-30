@@ -17,7 +17,7 @@ import bip39 from 'bip39'
 import Web3 from 'web3'
 
 
-import '../KLY_Addons/must_have_signatures/wasm_exec.js'
+import '../KLY_Addons/must_have/wasm_exec.js'
 
 
 
@@ -41,19 +41,20 @@ export default {
 
         generateDefaultEd25519Keypair:async(mnemonic,bip44Path,mnemoPass)=>{
 
-            mnemonic ||= bip39.generateMnemonic()
+            mnemonic ||= bip39.generateMnemonic(256)
     
-            bip44Path ||=`m/44'/7331'/0'/0'`
+            bip44Path ||= `m/44'/7331'/0'/0'`
     
     
             let seed = await bip39.mnemonicToSeed(mnemonic,mnemoPass)
     
-            let keypair=nacl.sign.keyPair.fromSeed(derivePath(bip44Path,seed.slice(0,32)).key)
+            let keypair = nacl.sign.keyPair.fromSeed(derivePath(bip44Path,seed).key)
     
+
     
-            keypair.secretKey=keypair.secretKey.slice(0,32)
+            keypair.secretKey = keypair.secretKey.slice(0,32)
             
-            keypair.secretKey=Buffer.concat([Buffer.from('302e020100300506032b657004220420','hex'),Buffer.from(keypair.secretKey)]).toString('base64')
+            keypair.secretKey = Buffer.concat([Buffer.from('302e020100300506032b657004220420','hex'),Buffer.from(keypair.secretKey)]).toString('base64')
     
     
             return {
