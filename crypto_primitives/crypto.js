@@ -39,61 +39,79 @@ export default {
 
     ed25519:{
 
-        generateDefaultEd25519Keypair:async(mnemonic,bip44Path,mnemoPass)=>{
+        generateDefaultEd25519Keypair:async(mnemonic,mnemoPass,bip44Path)=>{
 
-            mnemonic ||= bip39.generateMnemonic(256)
+            let ed25519Box = globalThis.generateEd25519Keypair(mnemonic,mnemoPass,...bip44Path)
+
+            // mnemonic ||= bip39.generateMnemonic(256)
     
-            bip44Path ||= `m/44'/7331'/0'/0'`
+            // bip44Path ||= `m/44'/7331'/0'/0'`
     
     
-            let seed = await bip39.mnemonicToSeed(mnemonic,mnemoPass)
+            // let seed = await bip39.mnemonicToSeed(mnemonic,mnemoPass)
     
-            let keypair = nacl.sign.keyPair.fromSeed(derivePath(bip44Path,seed).key)
+            // let keypair = nacl.sign.keyPair.fromSeed(derivePath(bip44Path,seed).key)
     
 
     
-            keypair.secretKey = keypair.secretKey.slice(0,32)
+            // keypair.secretKey = keypair.secretKey.slice(0,32)
             
-            keypair.secretKey = Buffer.concat([Buffer.from('302e020100300506032b657004220420','hex'),Buffer.from(keypair.secretKey)]).toString('base64')
+            // keypair.secretKey = Buffer.concat([Buffer.from('302e020100300506032b657004220420','hex'),Buffer.from(keypair.secretKey)]).toString('base64')
     
     
-            return {
-    
-                mnemonic,
-    
-                bip44Path,
-          
-                pub:Base58.encode(keypair.publicKey),
-          
-                prv:keypair.secretKey
-           
-            }
+            return ed25519Box
         
         },
     
         
-        signEd25519:(data,privateKey)=>new Promise((resolve,reject)=>
-            
-            crypto.sign(null,Buffer.from(data),'-----BEGIN PRIVATE KEY-----\n'+privateKey+'\n-----END PRIVATE KEY-----',(e,sig)=>
+        signEd25519:(data,privateKeyAsBase64)=>{
+
+            return new Promise((resolve, reject) => {
+
+                const privateKeyPem = `-----BEGIN PRIVATE KEY-----\n${privateKeyAsBase64}\n-----END PRIVATE KEY-----`
         
-                e?reject(''):resolve(sig.toString('base64'))
-    
-            )
-    
-        ).catch(e=>''),
+                crypto.sign(null, Buffer.from(data), privateKeyPem, (error, signature) => {
+        
+                    error ? reject('') : resolve(signature.toString('base64'))
+        
+                })
+        
+            }).catch(() => '')
+
+        },
     
            
     
-        verifyEd25519:(data,signature,pubKey)=>new Promise((resolve,reject)=>
-           
-            //Add mandatory prefix and postfix to pubkey
-            crypto.verify(null,data,'-----BEGIN PUBLIC KEY-----\n'+Buffer.from('302a300506032b6570032100'+Buffer.from(Base58.decode(pubKey)).toString('hex'),'hex').toString('base64')+'\n-----END PUBLIC KEY-----',Buffer.from(signature,'base64'),(err,res)=>
-    
-                err?reject(false):resolve(res)
-    
-            )
-    
-        ).catch(e=>false)
+        verifyEd25519:(data,signature,pubKey)=>{
+
+            return new Promise((resolve, reject) => {
+
+                // Decode public key from Base58 and encode to hex , add  
+        
+                let pubInHex = Buffer.from(Base58.decode(pubKey)).toString('hex')
+        
+                // Now add ASN.1 prefix
+        
+                let pubWithAsnPrefix = '302a300506032b6570032100'+pubInHex
+        
+                // Encode to Base64
+        
+                let pubAsBase64 = Buffer.from(pubWithAsnPrefix,'hex').toString('base64')
+        
+                // Finally, add required prefix and postfix
+        
+                let finalPubKey = `-----BEGIN PUBLIC KEY-----\n${pubAsBase64}\n-----END PUBLIC KEY-----`
+        
+                crypto.verify(null, data, finalPubKey, Buffer.from(signature, 'base64'), (err, isVerified) => 
+        
+                    err ? reject(false) : resolve(isVerified)
+        
+                )
+        
+        
+            }).catch(() => false)
+
+        }
 
     },
 
