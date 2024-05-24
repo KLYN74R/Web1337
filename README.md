@@ -1,9 +1,8 @@
 <div align="center">
 
-# <b>Wellcome to Web1337</b>
+# **Wellcome to Web1337**
 
-
-<img src="./SDKHover.svg">
+![cover](./SDKCover.svg)
 
 </div>
 

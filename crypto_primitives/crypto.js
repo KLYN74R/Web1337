@@ -1,4 +1,4 @@
-import {derivePath} from 'ed25519-hd-key'
+import '../KLY_Addons/must_have/wasm_exec.js'
 
 import tbls from './threshold/tbls.js'
 
@@ -6,18 +6,11 @@ import {hash} from 'blake3-wasm'
 
 import Base58 from 'base-58'
 
-import nacl from 'tweetnacl'
-
 import crypto from 'crypto'
 
 import bls from './bls.js'
 
-import bip39 from 'bip39'
-
 import Web3 from 'web3'
-
-
-import '../KLY_Addons/must_have/wasm_exec.js'
 
 
 
@@ -43,22 +36,6 @@ export default {
 
             let ed25519Box = globalThis.generateEd25519Keypair(mnemonic,mnemoPass,...bip44Path)
 
-            // mnemonic ||= bip39.generateMnemonic(256)
-    
-            // bip44Path ||= `m/44'/7331'/0'/0'`
-    
-    
-            // let seed = await bip39.mnemonicToSeed(mnemonic,mnemoPass)
-    
-            // let keypair = nacl.sign.keyPair.fromSeed(derivePath(bip44Path,seed).key)
-    
-
-    
-            // keypair.secretKey = keypair.secretKey.slice(0,32)
-            
-            // keypair.secretKey = Buffer.concat([Buffer.from('302e020100300506032b657004220420','hex'),Buffer.from(keypair.secretKey)]).toString('base64')
-    
-    
             return ed25519Box
         
         },

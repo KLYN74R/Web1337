@@ -43,7 +43,7 @@ let web1337 = new Web1337({
 
 });
 
-
+console.log(web1337.BLAKE3("43A+RQL4bDWVHQ/HwA2dWwdF5s1M9YDmgKRZ2EH/P/nA/6Cbb76n3eTh6DYUMLKaWS75uKxteAdaD4yxkDLvBw=="))
 
 // console.log(await web1337.getBlockByBlockID('0:9GQ46rqY238rk2neSwgidap9ww5zbAN4dyqyC7j5ZnBK:264'))
 

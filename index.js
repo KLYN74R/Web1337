@@ -32,11 +32,11 @@
 */
 
 
-
+import * as smartContractsApi from './api/smart_contract_api.js'
 import crypto from './crypto_primitives/crypto.js'
+import * as txsCreation from './txs_creation.js'
 import {hash} from 'blake3-wasm'
 import fetch from 'node-fetch'
-
 
 
 
@@ -61,7 +61,7 @@ const TX_TYPES = {
 
 }
 
-const SIG_TYPES = {
+const SIGNATURES_TYPES = {
     
     DEFAULT:'D',                    // Default ed25519
     TBLS:'T',                       // TBLS(threshold sig)
@@ -71,7 +71,7 @@ const SIG_TYPES = {
 
 }
 
-const SPECIAL_OPERATIONS={
+const EPOCH_EDGE_OPERATIONS = {
 
     VERSION_UPDATE:'VERSION_UPDATE',
     SLASH_UNSTAKE:'SLASH_UNSTAKE',
@@ -84,7 +84,7 @@ const SPECIAL_OPERATIONS={
 
 
 
-export {TX_TYPES,SIG_TYPES,SPECIAL_OPERATIONS}
+export {TX_TYPES,SIGNATURES_TYPES,EPOCH_EDGE_OPERATIONS}
 
 export {crypto}
 
@@ -126,7 +126,7 @@ export default class {
     BLAKE3=(input,length)=>hash(input,{length}).toString('hex')
 
 
-    #GET_REQUEST_TO_NODE=url=>{
+    getRequestToNode=url=>{
 
         let {nodeURL} = this.symbiotes.get(this.currentSymbiote)
 
@@ -135,7 +135,7 @@ export default class {
     }
 
 
-    #POST_REQUEST_TO_NODE=(url,payload)=>{
+    postRequestToNode=(url,payload)=>{
 
         let {nodeURL} = this.symbiotes.get(this.currentSymbiote)
 
@@ -149,31 +149,6 @@ export default class {
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    
     /*
     
     
@@ -222,339 +197,68 @@ export default class {
      * 
      * @returns {Checkpoint} current checkpoint
      */
-    getCurrentCheckpoint=()=>this.#GET_REQUEST_TO_NODE('/quorum_thread_checkpoint')
+    getCurrentCheckpoint=()=>this.getRequestToNode('/quorum_thread_checkpoint')
 
-    getSymbioteInfo=()=>this.#GET_REQUEST_TO_NODE('/symbiote_info')
+    getSymbioteInfo=()=>this.getRequestToNode('/symbiote_info')
 
     /**
      * 
      * @returns {Object} 
      */
-    getGeneralInfoAboutKLYInfrastructure=()=>this.#GET_REQUEST_TO_NODE('/my_info')
+    getGeneralInfoAboutKLYInfrastructure=()=>this.getRequestToNode('/my_info')
     
-    getSyncState=()=>this.#GET_REQUEST_TO_NODE('/sync_state')
+    getSyncState=()=>this.getRequestToNode('/sync_state')
 
 
     //_________________________Block API_________________________
 
 
-    getBlockByBlockID=blockID=>this.#GET_REQUEST_TO_NODE('/block/'+blockID)
+    getBlockByBlockID=blockID=>this.getRequestToNode('/block/'+blockID)
 
-    getBlockBySID=(shard,sid)=>this.#GET_REQUEST_TO_NODE(`/block_by_sid/${shard}/${sid}`)
+    getBlockBySID=(shard,sid)=>this.getRequestToNode(`/block_by_sid/${shard}/${sid}`)
     
 
     //____________________Get data from state____________________
 
 
-    getFromState=(shard,cellID)=>this.#GET_REQUEST_TO_NODE(`/state/${shard}/${cellID}`)
+    getFromState=(shard,cellID)=>this.getRequestToNode(`/state/${shard}/${cellID}`)
 
-    getTransactionReceiptById=txID=>this.#GET_REQUEST_TO_NODE('/tx_receipt/'+txID)
+    getTransactionReceiptById=txID=>this.getRequestToNode('/tx_receipt/'+txID)
 
     // Consensus-related API
-    getAggregatedFinalizationProofForBlock=blockID=>this.#GET_REQUEST_TO_NODE('/aggregated_finalization_proof/'+blockID)
+    getAggregatedFinalizationProofForBlock=blockID=>this.getRequestToNode('/aggregated_finalization_proof/'+blockID)
 
+    //_____________________________ TXS Creation _____________________________
 
-    getTransactionTemplate=(workflowVersion,creator,txType,nonce,fee,payload)=>{
+    createDefaultTransaction=(originShard,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>txsCreation.createDefaultTransaction(this,originShard,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)
 
-        return {
+    createMultisigTransaction=(rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>txsCreation.createMultisigTransaction(this,rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)
 
-            v:workflowVersion,
-            creator,
-            type:txType,
-            nonce,
-            fee,
-            payload,
-            sig:''
+    buildPartialSignatureWithTxData=(originShard,hexID,sharedPayload,originShard,nonce,fee,recipient,amountInKLY,rev_t)=>txsCreation.buildPartialSignatureWithTxData(this,hexID,sharedPayload,originShard,nonce,fee,recipient,amountInKLY,rev_t)
 
-        }
+    createThresholdTransaction=(tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)=>txsCreation.createThresholdTransaction(this,tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)
 
-    }
+    createPostQuantumTransaction=(originShard,sigType,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)=>txsCreation.createPostQuantumTransaction(this,originShard,sigType,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)
 
+    sendTransaction=(transaction)=>txsCreation.sendTransaction(this,transaction)
 
+    //_____________________________ Smart contracts API _____________________
 
+    getContractMetadata=contractID=>smartContractsApi.getContractMetadata(this,contractID)
 
+    getContractStorage=(contractID,storageName)=>smartContractsApi.getContractStorage(this,contractID,storageName)
 
+    deployContractForWvm=bytecode=>smartContractsApi.deployContractForWvm(this,bytecode)
 
+    callContract=(contractID,method,params,injects)=>smartContractsApi.callContract(this,contractID,method,params,injects)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-    
-    
-                   ████████╗██████╗  █████╗ ███╗   ██╗███████╗ █████╗  ██████╗████████╗██╗ ██████╗ ███╗   ██╗███████╗
-                    ══██╔══╝██╔══██╗██╔══██╗████╗  ██║██╔════╝██╔══██╗██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
-                      ██║   ██████╔╝███████║██╔██╗ ██║███████╗███████║██║        ██║   ██║██║   ██║██╔██╗ ██║███████╗
-                      ██║   ██╔══██╗██╔══██║██║╚██╗██║╚════██║██╔══██║██║        ██║   ██║██║   ██║██║╚██╗██║╚════██║
-                      ██║   ██║  ██║██║  ██║██║ ╚████║███████║██║  ██║╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║███████║
-                      ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
-
-                    ██████╗██████╗ ███████╗ █████╗ ████████╗██╗███╗   ██╗ ██████╗                                    
-                    █╔════╝██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║████╗  ██║██╔════╝                                    
-                    █║     ██████╔╝█████╗  ███████║   ██║   ██║██╔██╗ ██║██║  ███╗                                   
-                    █║     ██╔══██╗██╔══╝  ██╔══██║   ██║   ██║██║╚██╗██║██║   ██║                                   
-                    ██████╗██║  ██║███████╗██║  ██║   ██║   ██║██║ ╚████║╚██████╔╝                                   
-                    ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝                                    
-
-
-    */
-
-
-    // Transactions. Default, Multisig, Threshold, Post-quantum
-
-    createDefaultTransaction=async(originShard,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>{
-
-        let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
-    
-        let payload={
-
-            type:SIG_TYPES.DEFAULT,
-
-            to:recipient,
-
-            amount:amountInKLY
-        
-        }
-
-        // Reverse threshold should be set if recipient is a multisig address
-        if(typeof rev_t === 'number') payload.rev_t=rev_t
-
-
-        let transaction = this.getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.TX,nonce,fee,payload)
-
-        transaction.sig = await crypto.ed25519.signEd25519(this.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
-
-        // Return signed transaction
-        return transaction
-
-    }
-
-
-    createMultisigTransaction=async(rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
-
-        let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
-    
-        let payload={
-
-            type:SIG_TYPES.MULTISIG,
-
-            active:aggregatedPubOfActive,
-
-            afk:afkSigners,
-
-            to:recipient,
-
-            amount:amountInKLY
-        
-        }
-
-        // Reverse threshold should be set if recipient is a multisig address
-        if(typeof rev_t==='number') payload.rev_t=rev_t
-
-
-        let multisigTransaction = this.getTransactionTemplate(workflowVersion,rootPubKey,TX_TYPES.TX,nonce,fee,payload)
-
-        multisigTransaction.sig = aggregatedSignatureOfActive
-
-        // Return signed tx
-        return multisigTransaction
-
-    }
-
-
-    buildPartialSignatureWithTxData=async(hexID,sharedPayload,originShard,nonce,fee,recipient,amountInKLY,rev_t)=>{
-
-        let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
-
-        let payloadForTblsTransaction = {
-
-            to:recipient,
-
-            amount:amountInKLY,
-            
-            type:SIG_TYPES.TBLS
-
-        }
-
-        if(typeof rev_t==='number') payloadForTblsTransaction.rev_t = rev_t
-
-        let dataToSign = this.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payloadForTblsTransaction)+nonce+fee
-
-        let partialSignature = crypto.tbls.signTBLS(hexID,sharedPayload,dataToSign)
-        
-        return partialSignature
-
-    }
-
-
-    createThresholdTransaction = async(tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)=>{
-    
-        let tblsPayload = {
-    
-            to:recipient,
-    
-            amount:amountInKLY,
-    
-            type:SIG_TYPES.TBLS
-        
-        }
-    
-        if(typeof rev_t==='number') tblsPayload.rev_t = rev_t
-
-
-        let thresholdSigTransaction = this.getTransactionTemplate(
-            
-            this.symbiotes.get(this.currentSymbiote).workflowVersion,
-            
-            tblsRootPubkey,
-            
-            TX_TYPES.TX,
-            
-            nonce, fee, tblsPayload
-            
-        )
-        
-        thresholdSigTransaction.sig = crypto.tbls.buildSignature(partialSignaturesArray)
- 
-        return thresholdSigTransaction
- 
-    }
-
-
-    /**
-     * 
-     * @param {('bliss'|'dilithium')} sigType 
-     * @param {*} yourAddress 
-     * @param {*} yourPubKey 
-     * @param {*} yourPrivateKey 
-     * @param {*} recipient 
-     * @param {*} amountInKLY 
-     * @param {*} rev_t 
-     * @returns 
-     */
-    createPostQuantumTransaction = async(originShard,sigType,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)=>{
-
-        let workflowVersion = this.symbiotes.get(this.currentSymbiote).workflowVersion
-    
-        let payload={
-
-            type: sigType === 'bliss' ? SIG_TYPES.POST_QUANTUM_BLISS : SIG_TYPES.POST_QUANTUM_DIL,
-
-            to:recipient,
-
-            amount:amountInKLY
-        
-        }
-
-        // Reverse threshold should be set if recipient is a multisig address
-        if(typeof rev_t === 'number') payload.rev_t = rev_t
-
-
-        let transaction = this.getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.TX,nonce,fee,payload)
-
-        let funcRef = sigType === 'bliss' ? crypto.pqc.bliss : crypto.pqc.dilithium
-
-        transaction.sig = await funcRef.signData(yourPrivateKey,this.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee)
-
-        // Return signed transaction
-        return transaction
-
-    }
-
-
-    sendTransaction = transaction => this.#POST_REQUEST_TO_NODE('/transaction',transaction)
-
-
-
-    /*
-    
-    
-            ███████╗██████╗  ██████╗  ██████╗██╗  ██╗                                       
-            ██╔════╝██╔══██╗██╔═══██╗██╔════╝██║  ██║                                       
-            █████╗  ██████╔╝██║   ██║██║     ███████║                                       
-            ██╔══╝  ██╔═══╝ ██║   ██║██║     ██╔══██║                                       
-            ███████╗██║     ╚██████╔╝╚██████╗██║  ██║                                       
-            ╚══════╝╚═╝      ╚═════╝  ╚═════╝╚═╝  ╚═╝                                       
-                                                                                
-            ███████╗██████╗  ██████╗ ███████╗                                               
-            ██╔════╝██╔══██╗██╔════╝ ██╔════╝                                               
-            █████╗  ██║  ██║██║  ███╗█████╗                                                 
-            ██╔══╝  ██║  ██║██║   ██║██╔══╝                                                 
-            ███████╗██████╔╝╚██████╔╝███████╗                                               
-            ╚══════╝╚═════╝  ╚═════╝ ╚══════╝                                               
-                                                                                
-             ██████╗ ██████╗ ██████╗ ███████╗ █████╗ ████████╗██╗ ██████╗ ███╗   ██╗███████╗
-            ██╔═══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
-            ██║   ██║██████╔╝██████╔╝█████╗  ███████║   ██║   ██║██║   ██║██╔██╗ ██║███████╗
-            ██║   ██║██╔═══╝ ██╔══██╗██╔══╝  ██╔══██║   ██║   ██║██║   ██║██║╚██╗██║╚════██║
-            ╚██████╔╝██║     ██║  ██║███████╗██║  ██║   ██║   ██║╚██████╔╝██║ ╚████║███████║
-             ╚═════╝ ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝                                                                  
-                                                                                
-    
-    */
-
-    createEpochEdgeOperation=async(type,payload)=>{
-
-        // See the examples
-
-    }
-
-    sendEpochEdgeOperation=async specialOperation=>{
-
-        
-        let optionsToSend = {
-
-            method:'POST',
-            body:JSON.stringify(specialOperation)
-        
-        }
-
-        let status = await (await fetch(this.symbiotes.get(this.currentSymbiote),optionsToSend).then(r=>r.text())).catch(error=>error)
-
-        return status
-
-    }
+    subscribeForEventsByContract=(contractID,eventID)=>smartContractsApi.subscribeForEventsByContract(this,contractID,eventID)
 
     //_____________________________ STAKING LOGIC _____________________________
 
-    stakeToPool=async()=>{}
+    // stakeToPool=async()=>{}
 
-    unstakefromPool=async()=>{}
-
-
-    //____________________________ CONTRACTS LOGIC ____________________________
-
-    getContractMetadata=contractID=>this.#GET_REQUEST_TO_NODE('/account/'+contractID)
-
-    getContractStorage=(contractID,storageName)=>this.#GET_REQUEST_TO_NODE('/account/'+contractID+'_STORAGE_'+storageName)
-
-    callContract=(contractID,method,params,injects)=>{}
-
-    deployContractForKlyWvm=(bytecode,callMap)=>{}
-
-
-    //____________________________ SERVICES LOGIC ____________________________
-
-
-    //_____________________________ EVENTS BY VM _____________________________
-
-
-    subscribeForEventsByContract=(contractID,eventID='ALL')=>{}
-
+    // unstakefromPool=async()=>{}
 
     //_________________ MUTUALISM(cross-symbiotic interaction) _______________
 
