@@ -26,7 +26,7 @@ import Web1337 from './index.js'
 */
 
 
-let getTransactionTemplate=(workflowVersion,creator,txType,nonce,fee,payload)=>{
+export let getTransactionTemplate=(workflowVersion,creator,txType,nonce,fee,payload)=>{
 
     return {
 
@@ -117,27 +117,27 @@ export let createMultisigTransaction=async(web1337,rootPubKey,aggregatedPubOfAct
  */
 export let buildPartialSignatureWithTxData=async(web1337,hexID,sharedPayload,originShard,nonce,fee,recipient,amountInKLY,rev_t)=>{
 
-        let workflowVersion = web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion
+    let workflowVersion = web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion
 
-        let payloadForTblsTransaction = {
+    let payloadForTblsTransaction = {
 
-            to:recipient,
+        to:recipient,
 
-            amount:amountInKLY,
+        amount:amountInKLY,
             
-            type:SIGNATURES_TYPES.TBLS
-
-        }
-
-        if(typeof rev_t==='number') payloadForTblsTransaction.rev_t = rev_t
-
-        let dataToSign = web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payloadForTblsTransaction)+nonce+fee
-
-        let partialSignature = crypto.tbls.signTBLS(hexID,sharedPayload,dataToSign)
-        
-        return partialSignature
+        type:SIGNATURES_TYPES.TBLS
 
     }
+
+    if(typeof rev_t==='number') payloadForTblsTransaction.rev_t = rev_t
+
+    let dataToSign = web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payloadForTblsTransaction)+nonce+fee
+
+    let partialSignature = crypto.tbls.signTBLS(hexID,sharedPayload,dataToSign)
+        
+    return partialSignature
+
+}
 
 
 
@@ -148,36 +148,36 @@ export let buildPartialSignatureWithTxData=async(web1337,hexID,sharedPayload,ori
  */
 export let createThresholdTransaction = async(web1337,tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)=>{
     
-        let tblsPayload = {
+    let tblsPayload = {
     
-            to:recipient,
+        to:recipient,
     
-            amount:amountInKLY,
+        amount:amountInKLY,
     
-            type:SIGNATURES_TYPES.TBLS
+        type:SIGNATURES_TYPES.TBLS
         
-        }
-    
-        if(typeof rev_t==='number') tblsPayload.rev_t = rev_t
-
-
-        let thresholdSigTransaction = getTransactionTemplate(
-            
-            web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion,
-            
-            tblsRootPubkey,
-            
-            TX_TYPES.TX,
-            
-            nonce, fee, tblsPayload
-            
-        )
-        
-        thresholdSigTransaction.sig = crypto.tbls.buildSignature(partialSignaturesArray)
- 
-        return thresholdSigTransaction
- 
     }
+    
+    if(typeof rev_t==='number') tblsPayload.rev_t = rev_t
+
+
+    let thresholdSigTransaction = getTransactionTemplate(
+            
+        web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion,
+            
+        tblsRootPubkey,
+            
+        TX_TYPES.TX,
+            
+        nonce, fee, tblsPayload
+            
+    )
+        
+    thresholdSigTransaction.sig = crypto.tbls.buildSignature(partialSignaturesArray)
+ 
+    return thresholdSigTransaction
+ 
+}
 
 
 
@@ -188,32 +188,32 @@ export let createThresholdTransaction = async(web1337,tblsRootPubkey,partialSign
  */
 export let createPostQuantumTransaction = async(web1337,originShard,sigType,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)=>{
 
-        let workflowVersion = web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion
+    let workflowVersion = web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion
     
-        let payload={
+    let payload={
 
-            type: sigType === 'bliss' ? SIGNATURES_TYPES.POST_QUANTUM_BLISS : SIGNATURES_TYPES.POST_QUANTUM_DIL,
+        type: sigType === 'bliss' ? SIGNATURES_TYPES.POST_QUANTUM_BLISS : SIGNATURES_TYPES.POST_QUANTUM_DIL,
+            
+        to:recipient,
 
-            to:recipient,
-
-            amount:amountInKLY
+        amount:amountInKLY
         
-        }
-
-        // Reverse threshold should be set if recipient is a multisig address
-        if(typeof rev_t === 'number') payload.rev_t = rev_t
-
-
-        let transaction = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.TX,nonce,fee,payload)
-
-        let funcRef = sigType === 'bliss' ? crypto.pqc.bliss : crypto.pqc.dilithium
-
-        transaction.sig = await funcRef.signData(yourPrivateKey,web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee)
-
-        // Return signed transaction
-        return transaction
-
     }
+
+    // Reverse threshold should be set if recipient is a multisig address
+    if(typeof rev_t === 'number') payload.rev_t = rev_t
+
+
+    let transaction = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.TX,nonce,fee,payload)
+
+    let funcRef = sigType === 'bliss' ? crypto.pqc.bliss : crypto.pqc.dilithium
+
+    transaction.sig = await funcRef.signData(yourPrivateKey,web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee)
+
+    // Return signed transaction
+    return transaction
+
+}
 
 
 /**

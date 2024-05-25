@@ -1,4 +1,9 @@
-import Web1337 from "../index.js"
+import {getTransactionTemplate} from "../txs_creation.js"
+
+import crypto from '../crypto_primitives/crypto.js'
+
+import Web1337, { TX_TYPES } from "../index.js"
+
 
 
 /**
@@ -19,7 +24,59 @@ export let getContractStorage=async(web1337,contractID,storageName)=>web1337.get
  * 
  * @param {Web1337} web1337  
  */
-export let deployContractForWvm=async(web1337,bytecode)=>{}
+export let createContractDeploymentTx=async(web1337,originShard,yourAddress,yourPrivateKey,nonce,fee,sigType,bytecode,lang,constructorParams)=>{
+
+/*
+
+    Full transaction which contains contract deploy must have such structure
+ 
+    {
+        v: 0,
+        creator: '2VEzwUdvSRuv1k2JaAEaMiL7LLNDTUf9bXSapqccCcSb',
+        type: 'CONTRACT_DEPLOY',
+        nonce: 0,
+        fee: 1,
+        payload: {
+            type: 'D',
+            bytecode:<hexString>,
+            lang:<RUST|ASC>,
+            constructorParams:[]
+        },
+        sig: '5AGkLlK3knzYZeZwjHKPzlX25lPMd7nU+rR5XG9RZa3sDpYrYpfnzqecm5nNONnl5wDcxmjOkKMbO7ulAwTFDQ=='
+    }
+ 
+*/
+
+    let workflowVersion = web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion
+
+    let payload = {
+
+        type:sigType,
+        bytecode,
+        lang,
+        constructorParams
+
+    }
+
+    let txTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.CONTRACT_DEPLOY,nonce,fee,payload)
+
+    txTemplate.payload.type = sigType
+
+    let dataToSign = web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
+
+
+    if(sigType==='D') txTemplate.sig = await crypto.ed25519.signEd25519(dataToSign,yourPrivateKey)
+
+    else if (sigType==='P/B') txTemplate.sig = crypto.pqc.bliss.signData(yourPrivateKey,dataToSign)
+
+    else if (sigType==='P/D') txTemplate.sig = crypto.pqc.dilithium.signData(yourPrivateKey,dataToSign)
+
+    // Return signed transaction
+    
+    return txTemplate
+
+
+}
 
 
 
@@ -27,7 +84,33 @@ export let deployContractForWvm=async(web1337,bytecode)=>{}
  * 
  * @param {Web1337} web1337  
  */
-export let callContract=async(web1337,contractID,method,params,injects)=>{}
+export let createContractCallTx=async(web1337,contractID,method,params,injects)=>{
+
+/*
+
+Full transaction which contains method call of some smart contract must have such structure
+ 
+{
+    v: 0,
+    creator: '2VEzwUdvSRuv1k2JaAEaMiL7LLNDTUf9bXSapqccCcSb',
+    type: 'CONTRACT_CALL',
+    nonce: 0,
+    fee: 1,
+    payload:{
+
+            contractID:<BLAKE3 hashID of contract OR alias of contract(for example, system contracts)>,
+            method:<string method to call>,
+            gasLimit:<maximum allowed in KLY to execute contract>
+            params:[] params to pass to function
+            imports:[] imports which should be included to contract instance to call. Example ['default.CROSS-CONTRACT','storage.GET_FROM_ARWEAVE']. As you understand, it's form like <MODULE_NAME>.<METHOD_TO_IMPORT>
+        
+    },
+    sig: '5AGkLlK3knzYZeZwjHKPzlX25lPMd7nU+rR5XG9RZa3sDpYrYpfnzqecm5nNONnl5wDcxmjOkKMbO7ulAwTFDQ=='
+}
+ 
+*/
+
+}
 
 
 

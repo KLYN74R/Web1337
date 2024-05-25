@@ -248,9 +248,9 @@ export default class {
 
     getContractStorage=(contractID,storageName)=>smartContractsApi.getContractStorage(this,contractID,storageName)
 
-    deployContractForWvm=bytecode=>smartContractsApi.deployContractForWvm(this,bytecode)
+    deployContractForWvm=bytecode=>smartContractsApi.createContractDeploymentTx(this,bytecode)
 
-    callContract=(contractID,method,params,injects)=>smartContractsApi.callContract(this,contractID,method,params,injects)
+    callContract=(contractID,method,params,injects)=>smartContractsApi.createContractCallTx(this,contractID,method,params,injects)
 
     subscribeForEventsByContract=(contractID,eventID)=>smartContractsApi.subscribeForEventsByContract(this,contractID,eventID)
 
