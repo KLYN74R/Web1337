@@ -2,7 +2,7 @@ import {getTransactionTemplate} from "../txs_creation.js"
 
 import crypto from '../crypto_primitives/crypto.js'
 
-import Web1337, { TX_TYPES } from "../index.js"
+import Web1337, {TX_TYPES} from "../index.js"
 
 
 
@@ -58,22 +58,22 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
 
     }
 
-    let txTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.CONTRACT_DEPLOY,nonce,fee,payload)
+    let contractDeploymentTxTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.CONTRACT_DEPLOY,nonce,fee,payload)
 
-    txTemplate.payload.type = sigType
+    contractDeploymentTxTemplate.payload.type = sigType
 
     let dataToSign = web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
 
 
-    if(sigType==='D') txTemplate.sig = await crypto.ed25519.signEd25519(dataToSign,yourPrivateKey)
+    if(sigType==='D') contractDeploymentTxTemplate.sig = await crypto.ed25519.signEd25519(dataToSign,yourPrivateKey)
 
-    else if (sigType==='P/B') txTemplate.sig = crypto.pqc.bliss.signData(yourPrivateKey,dataToSign)
+    else if (sigType==='P/B') contractDeploymentTxTemplate.sig = crypto.pqc.bliss.signData(yourPrivateKey,dataToSign)
 
-    else if (sigType==='P/D') txTemplate.sig = crypto.pqc.dilithium.signData(yourPrivateKey,dataToSign)
+    else if (sigType==='P/D') contractDeploymentTxTemplate.sig = crypto.pqc.dilithium.signData(yourPrivateKey,dataToSign)
 
     // Return signed transaction
-    
-    return txTemplate
+
+    return contractDeploymentTxTemplate
 
 
 }
@@ -84,7 +84,7 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
  * 
  * @param {Web1337} web1337  
  */
-export let createContractCallTx=async(web1337,contractID,method,params,injects)=>{
+export let createContractCallTx=async(web1337,originShard,yourAddress,yourPrivateKey,nonce,fee,sigType,contractID,method,params,injects)=>{
 
 /*
 
@@ -109,6 +109,36 @@ Full transaction which contains method call of some smart contract must have suc
 }
  
 */
+
+    let workflowVersion = web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion
+
+    let payload = {
+
+        type:sigType,
+        contractID,
+        method,
+        params,
+        injects
+
+    }
+
+    let contractCallTxTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.CONTRACT_CALL,nonce,fee,payload)
+
+    contractCallTxTemplate.payload.type = sigType
+
+    let dataToSign = web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
+
+
+    if(sigType==='D') contractCallTxTemplate.sig = await crypto.ed25519.signEd25519(dataToSign,yourPrivateKey)
+
+    else if (sigType==='P/B') contractCallTxTemplate.sig = crypto.pqc.bliss.signData(yourPrivateKey,dataToSign)
+
+    else if (sigType==='P/D') contractCallTxTemplate.sig = crypto.pqc.dilithium.signData(yourPrivateKey,dataToSign)
+
+    // Return signed transaction
+
+    return contractCallTxTemplate
+
 
 }
 
