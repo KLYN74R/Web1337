@@ -42,7 +42,7 @@ export let sendEpochEdgeOperation=async specialOperation=>{
                 
     }
         
-    let status = await (await fetch(this.symbiotes.get(this.currentSymbiote),optionsToSend).then(r=>r.text())).catch(error=>error)
+    let status = await fetch(this.symbiotes.get(this.currentSymbiote),optionsToSend).then(r=>r.text()).catch(error=>error)
         
     return status
         

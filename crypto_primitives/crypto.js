@@ -18,7 +18,7 @@ import Web3 from 'web3'
 
 const web3 = new Web3() // this will be used to generate EVM addresses
 
-const BLAKE3=(input,length=32)=>hash(input,{length}).toString('hex')
+const blake3 = (input,length=32) => hash(input,{length}).toString('hex')
 
 
 
@@ -120,7 +120,7 @@ export default {
 
                 let [pubKey,privateKey] = globalThis.generateDilithiumKeypair().split(':')
 
-                return {pubKey,privateKey,address:BLAKE3(pubKey)}
+                return {pubKey,privateKey,address:blake3(pubKey)}
 
             },
         
@@ -140,7 +140,7 @@ export default {
 
                 let [pubKey,privateKey] = globalThis.generateBlissKeypair().split(':')
 
-                return {pubKey,privateKey,address:BLAKE3(pubKey)}
+                return {pubKey,privateKey,address:blake3(pubKey)}
                
 
             },

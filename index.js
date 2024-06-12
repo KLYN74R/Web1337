@@ -123,7 +123,7 @@ export default class {
     }
 
 
-    BLAKE3=(input,length)=>hash(input,{length}).toString('hex')
+    blake3=(input,length)=>hash(input,{length}).toString('hex')
 
 
     getRequestToNode=url=>{

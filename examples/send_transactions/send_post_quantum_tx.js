@@ -67,5 +67,5 @@ await web1337.sendTransaction(signedBlissTx)
 
 // and get the receipt later. Reminder - id of tx and receipt is 256-bit BLAKE3 hash of transaction signature
 
-let receipt1 = await web1337.getTransactionReceiptById(web1337.BLAKE3(signedDilithiumTx))
-let receipt2 = await web1337.getTransactionReceiptById(web1337.BLAKE3(signedBlissTx))
+let receipt1 = await web1337.getTransactionReceiptById(web1337.blake3(signedDilithiumTx))
+let receipt2 = await web1337.getTransactionReceiptById(web1337.blake3(signedBlissTx))
