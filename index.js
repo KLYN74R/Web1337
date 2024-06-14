@@ -163,15 +163,18 @@ export default class {
     */
 
 
-    //_________________________Block API_________________________
 
+
+    //_________________________Block API_________________________
 
     getBlockByBlockID=blockID=>this.getRequestToNode('/block/'+blockID)
 
     getBlockBySID=(shard,sid)=>this.getRequestToNode(`/block_by_sid/${shard}/${sid}`)
 
-    getLatestNBlocks=(shard,startIndex,limit)=>this.getRequestToNode(`/latest_n_blocks/${shard}/${startIndex}/${limit}`)
+    getLatestNBlocksOnShard=(shard,startIndex,limit)=>this.getRequestToNode(`/latest_n_blocks/${shard}/${startIndex}/${limit}`)
     
+
+
 
     //_______________________Epoch data API______________________
 
@@ -181,15 +184,41 @@ export default class {
 
     getEpochDataByEpochIndex=epochIndex=>this.getRequestToNode(`/epoch_by_index/${epochIndex}`)
 
-    //____________________Get data from state____________________
 
 
-    getFromState=(shard,cellID)=>this.getRequestToNode(`/state/${shard}/${cellID}`)
+
+    //_______________________State data API____________________
+
+    getDataFromState=(shard,cellID)=>this.getRequestToNode(`/state/${shard}/${cellID}`)
 
     getTransactionReceiptById=txID=>this.getRequestToNode('/tx_receipt/'+txID)
 
-    // Consensus-related API
+    getPoolStats=poolID=>this.getRequestToNode('/pool_stats/'+poolID)
+
+
+
+
+    //_______________________Misc data API_____________________
+
+    getTargetNodeInfrastructureInfo=()=>this.getRequestToNode('/infrastructure_info')
+
+    getChainData=()=>this.getRequestToNode('/chain_info')
+
+    getKlyEvmMetadata=()=>this.getRequestToNode('/kly_evm_metadata')
+
+    getSynchronizationStatus=()=>this.getRequestToNode('/synchronization_stats')
+
+
+
+
+    //___________________Consensus-related API___________________
+
+    getAggregatedEpochFinalizationProof=(epochIndex,shard)=>this.getRequestToNode(`/aggregated_epoch_finalization_proof/${epochIndex}/${shard}`)
+
     getAggregatedFinalizationProofForBlock=blockID=>this.getRequestToNode('/aggregated_finalization_proof/'+blockID)
+
+
+
 
     //_____________________________ TXS Creation _____________________________
 
@@ -205,7 +234,10 @@ export default class {
 
     sendTransaction=(transaction)=>txsCreation.sendTransaction(this,transaction)
 
-    //_____________________________ Smart contracts API _____________________
+
+
+
+    //_________________________ Smart contracts API __________________________
 
     getContractMetadata=contractID=>smartContractsApi.getContractMetadata(this,contractID)
 
