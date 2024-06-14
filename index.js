@@ -163,60 +163,23 @@ export default class {
     */
 
 
-    //_______Get data about checkpoint, symbiote and state__________
-
-    /**
-     * @typedef {Object} PoolsMetadata
-     * @property {Number} index - index of finalized blocks by this checkpoint
-     * @property {String} hash - hash of block with this index
-     * @property {Boolean} isReserve - pointer if pool is reserve. true - it's reserve pool, false - it's prime pool with own shard
-     * 
-     * 
-     * @typedef {Object} CheckpointHeader
-     * @property {Number} id - index of checkpoint to keep sequence
-     * @property {String} payloadHash - 256-bit BLAKE3 hash of payload
-     * @property {String} quorumAggregatedSignersPubKey - Base58 encoded BLS aggregated pubkey of quorum members who agreed and sign this checkpoint
-     * @property {String} quorumAggregatedSignature - Base64 encoded BLS aggregated signature of quorum members who agreed and sign this checkpoint
-     * @property {Array.<string>} afkVoters - array of pubkeys of quorum members who didn't take part in signing process
-     * 
-     * 
-     * @typedef {Object} CheckpointPayload
-     * @property {String} prevCheckpointPayloadHash - 256-bit BLAKE3 hash of previous checkpoint(since it's chain)
-     * @property {PoolsMetadata} poolsMetadata - metadata of all registered pools for current epoch
-     * @property {Array.<Object>} operations - array of special operations that must be runned after checkpoint
-     * @property {Object} otherSymbiotes - state fixation of other symbiotes in ecosystem
-     * 
-     * 
-     * @typedef {Object} Checkpoint
-     * @property {CheckpointPayload} payload - the payload of checkpoint with all the required stuff
-    
-     */
-
-    /**
-     * 
-     * 
-     * @returns {Checkpoint} current checkpoint
-     */
-    getCurrentCheckpoint=()=>this.getRequestToNode('/quorum_thread_checkpoint')
-
-    getSymbioteInfo=()=>this.getRequestToNode('/symbiote_info')
-
-    /**
-     * 
-     * @returns {Object} 
-     */
-    getGeneralInfoAboutKLYInfrastructure=()=>this.getRequestToNode('/my_info')
-    
-    getSyncState=()=>this.getRequestToNode('/sync_state')
-
-
     //_________________________Block API_________________________
 
 
     getBlockByBlockID=blockID=>this.getRequestToNode('/block/'+blockID)
 
     getBlockBySID=(shard,sid)=>this.getRequestToNode(`/block_by_sid/${shard}/${sid}`)
+
+    getLatestNBlocks=(shard,startIndex,limit)=>this.getRequestToNode(`/latest_n_blocks/${shard}/${startIndex}/${limit}`)
     
+
+    //_______________________Epoch data API______________________
+
+    getCurrentEpochOnThread=threadID=>this.getRequestToNode('/current_epoch/'+threadID)
+
+    getCurrentShardLeaders=()=>this.getRequestToNode(`/current_shards_leaders`)
+
+    getEpochDataByEpochIndex=epochIndex=>this.getRequestToNode(`/epoch_by_index/${epochIndex}`)
 
     //____________________Get data from state____________________
 
