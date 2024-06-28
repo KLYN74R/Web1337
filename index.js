@@ -180,7 +180,7 @@ export default class {
 
     getCurrentEpochOnThread=threadID=>this.getRequestToNode('/current_epoch/'+threadID)
 
-    getCurrentShardLeaders=()=>this.getRequestToNode(`/current_shards_leaders`)
+    getCurrentLeadersOnShards=()=>this.getRequestToNode(`/current_shards_leaders`)
 
     getEpochDataByEpochIndex=epochIndex=>this.getRequestToNode(`/epoch_by_index/${epochIndex}`)
 
@@ -226,7 +226,7 @@ export default class {
 
     createMultisigTransaction=(rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>txsCreation.createMultisigTransaction(this,rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)
 
-    buildPartialSignatureWithTxData=(originShard,hexID,sharedPayload,originShard,nonce,fee,recipient,amountInKLY,rev_t)=>txsCreation.buildPartialSignatureWithTxData(this,hexID,sharedPayload,originShard,nonce,fee,recipient,amountInKLY,rev_t)
+    buildPartialSignatureWithTxData=(originShard,hexID,sharedPayload,nonce,fee,recipient,amountInKLY,rev_t)=>txsCreation.buildPartialSignatureWithTxData(this,hexID,sharedPayload,originShard,nonce,fee,recipient,amountInKLY,rev_t)
 
     createThresholdTransaction=(tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)=>txsCreation.createThresholdTransaction(this,tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)
 
