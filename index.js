@@ -259,7 +259,14 @@ export default class {
 
     createEpochEdgeOperation=(type,payload)=>epochEdgeOpsApi.createEpochEdgeOperation(this,type,payload)
 
-    
+    getQuorumApprovementsOfEpochEdgeOperations=epochEdgeOperation=>{
+
+        // 0. Ask for current quorum (web1337.getCurrentEpochOnThread('at'))
+        // 1. Get approvements (signatures) of epoch edge operation and aggregate it locally
+        // 2. Now when you have 2/3N+1 approvements - send it to /epoch_edge_operation_to_mempool
+        // 3. Transaction should be accepted now on the edge of current and the next epoch
+
+    }
 
     //_________________ MUTUALISM(cross-symbiotic interaction) _______________
 
