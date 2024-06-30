@@ -31,7 +31,7 @@
 
 */
 
-
+import * as epochEdgeOpsApi from './api/epoch_edge_operations_api.js'
 import * as smartContractsApi from './api/smart_contract_api.js'
 import crypto from './crypto_primitives/crypto.js'
 import * as txsCreation from './txs_creation.js'
@@ -254,6 +254,12 @@ export default class {
     // stakeToPool=async()=>{}
 
     // unstakefromPool=async()=>{}
+
+    //_________________________ EPOCH EDGE OPERATIONS _________________________
+
+    createEpochEdgeOperation=(type,payload)=>epochEdgeOpsApi.createEpochEdgeOperation(this,type,payload)
+
+    
 
     //_________________ MUTUALISM(cross-symbiotic interaction) _______________
 

@@ -84,7 +84,7 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
  * 
  * @param {Web1337} web1337  
  */
-export let createContractCallTx=async(web1337,originShard,yourAddress,yourPrivateKey,nonce,fee,sigType,contractID,method,params,injects)=>{
+export let createContractCallTx=async(web1337,originShard,yourAddress,yourPrivateKey,nonce,fee,sigType,contractID,method,gasLimit,params,injects)=>{
 
 /*
 
@@ -117,6 +117,7 @@ Full transaction which contains method call of some smart contract must have suc
         type:sigType,
         contractID,
         method,
+        gasLimit,
         params,
         injects
 
