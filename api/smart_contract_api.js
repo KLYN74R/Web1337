@@ -33,7 +33,7 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
     {
         v: 0,
         creator: '2VEzwUdvSRuv1k2JaAEaMiL7LLNDTUf9bXSapqccCcSb',
-        type: 'CONTRACT_DEPLOY',
+        type: 'WVM_CONTRACT_DEPLOY',
         nonce: 0,
         fee: 1,
         payload: {
@@ -58,11 +58,11 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
 
     }
 
-    let contractDeploymentTxTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.CONTRACT_DEPLOY,nonce,fee,payload)
+    let contractDeploymentTxTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.WVM_CONTRACT_DEPLOY,nonce,fee,payload)
 
     contractDeploymentTxTemplate.payload.type = sigType
 
-    let dataToSign = web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
+    let dataToSign = web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.WVM_CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
 
 
     if(sigType==='D') contractDeploymentTxTemplate.sig = await crypto.ed25519.signEd25519(dataToSign,yourPrivateKey)
@@ -123,11 +123,11 @@ Full transaction which contains method call of some smart contract must have suc
 
     }
 
-    let contractCallTxTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.CONTRACT_CALL,nonce,fee,payload)
+    let contractCallTxTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.WVM_CALL,nonce,fee,payload)
 
     contractCallTxTemplate.payload.type = sigType
 
-    let dataToSign = web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
+    let dataToSign = web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.WVM_CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
 
 
     if(sigType==='D') contractCallTxTemplate.sig = await crypto.ed25519.signEd25519(dataToSign,yourPrivateKey)

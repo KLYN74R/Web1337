@@ -54,8 +54,8 @@ import {HttpsProxyAgent} from 'https-proxy-agent'
 const TX_TYPES = {
 
     TX:'TX', // default address <=> address tx
-    CONTRACT_DEPLOY:'CONTRACT_DEPLOY', // deployment of WASM contact to KLY-WVM 
-    CONTRACT_CALL:'CONTRACT_CALL', // call the WASM contact to KLY-WVM
+    WVM_CONTRACT_DEPLOY:'WVM_CONTRACT_DEPLOY', // deployment of WASM contact to KLY-WVM 
+    WVM_CALL:'WVM_CALL', // call the WASM contact to KLY-WVM
     EVM_CALL:'EVM_CALL', // call the KLY-EVM
     MIGRATE_BETWEEN_ENV:'MIGRATE_BETWEEN_ENV' // to move KLY coins from KLY-WVM to KLY-EVM and vice versa 
 
