@@ -1,6 +1,7 @@
+import Web1337, {SIGNATURES_TYPES} from './index.js'
+
 import crypto from './crypto_primitives/crypto.js'
 
-import Web1337 from './index.js'
 
 
 
@@ -55,7 +56,7 @@ export let createDefaultTransaction=async(web1337,originShard,yourAddress,yourPr
     
     let payload={
 
-        type:SIGNATURES_TYPES.DEFAULT,
+        sigType:SIGNATURES_TYPES.DEFAULT,
 
         to:recipient,
 
@@ -87,7 +88,7 @@ export let createMultisigTransaction=async(web1337,rootPubKey,aggregatedPubOfAct
     
     let payload={
 
-        type:SIGNATURES_TYPES.MULTISIG,
+        sigType:SIGNATURES_TYPES.MULTISIG,
 
         active:aggregatedPubOfActive,
 
@@ -125,7 +126,7 @@ export let buildPartialSignatureWithTxData=async(web1337,hexID,sharedPayload,ori
 
         amount:amountInKLY,
             
-        type:SIGNATURES_TYPES.TBLS
+        sigType:SIGNATURES_TYPES.TBLS
 
     }
 
@@ -154,7 +155,7 @@ export let createThresholdTransaction = async(web1337,tblsRootPubkey,partialSign
     
         amount:amountInKLY,
     
-        type:SIGNATURES_TYPES.TBLS
+        sigType:SIGNATURES_TYPES.TBLS
         
     }
     
@@ -192,7 +193,7 @@ export let createPostQuantumTransaction = async(web1337,originShard,sigType,your
     
     let payload={
 
-        type: sigType === 'bliss' ? SIGNATURES_TYPES.POST_QUANTUM_BLISS : SIGNATURES_TYPES.POST_QUANTUM_DIL,
+        sigType: sigType === 'bliss' ? SIGNATURES_TYPES.POST_QUANTUM_BLISS : SIGNATURES_TYPES.POST_QUANTUM_DIL,
             
         to:recipient,
 
