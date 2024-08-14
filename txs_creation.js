@@ -1,4 +1,4 @@
-import Web1337, {SIGNATURES_TYPES} from './index.js'
+import Web1337, {SIGNATURES_TYPES,TX_TYPES} from './index.js'
 
 import crypto from './crypto_primitives/crypto.js'
 
