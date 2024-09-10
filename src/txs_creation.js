@@ -1,6 +1,6 @@
-import Web1337, {SIGNATURES_TYPES,TX_TYPES} from './index.js'
+import Web1337, {SIGNATURES_TYPES,TX_TYPES} from '../index.js'
 
-import crypto from './crypto_primitives/crypto.js'
+import crypto from '../crypto_primitives/crypto.js'
 
 
 
@@ -52,7 +52,7 @@ export let getTransactionTemplate=(workflowVersion,creator,txType,nonce,fee,payl
  */
 export let createDefaultTransaction=async(web1337,originShard,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>{
 
-    let workflowVersion = web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion
+    let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
     
     let payload={
 
@@ -70,7 +70,7 @@ export let createDefaultTransaction=async(web1337,originShard,yourAddress,yourPr
 
     let transaction = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.TX,nonce,fee,payload)
 
-    transaction.sig = await crypto.ed25519.signEd25519(web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
+    transaction.sig = await crypto.ed25519.signEd25519(web1337.currentChain+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
 
     // Return signed transaction
     return transaction
@@ -84,7 +84,7 @@ export let createDefaultTransaction=async(web1337,originShard,yourAddress,yourPr
  */
 export let createMultisigTransaction=async(web1337,rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
 
-    let workflowVersion = web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion
+    let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
     
     let payload={
 
@@ -118,7 +118,7 @@ export let createMultisigTransaction=async(web1337,rootPubKey,aggregatedPubOfAct
  */
 export let buildPartialSignatureWithTxData=async(web1337,hexID,sharedPayload,originShard,nonce,fee,recipient,amountInKLY,rev_t)=>{
 
-    let workflowVersion = web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion
+    let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
 
     let payloadForTblsTransaction = {
 
@@ -132,7 +132,7 @@ export let buildPartialSignatureWithTxData=async(web1337,hexID,sharedPayload,ori
 
     if(typeof rev_t==='number') payloadForTblsTransaction.rev_t = rev_t
 
-    let dataToSign = web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payloadForTblsTransaction)+nonce+fee
+    let dataToSign = web1337.currentChain+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payloadForTblsTransaction)+nonce+fee
 
     let partialSignature = crypto.tbls.signTBLS(hexID,sharedPayload,dataToSign)
         
@@ -164,7 +164,7 @@ export let createThresholdTransaction = async(web1337,tblsRootPubkey,partialSign
 
     let thresholdSigTransaction = getTransactionTemplate(
             
-        web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion,
+        web1337.chains.get(web1337.currentChain).workflowVersion,
             
         tblsRootPubkey,
             
@@ -189,7 +189,7 @@ export let createThresholdTransaction = async(web1337,tblsRootPubkey,partialSign
  */
 export let createPostQuantumTransaction = async(web1337,originShard,sigType,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)=>{
 
-    let workflowVersion = web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion
+    let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
     
     let payload={
 
@@ -209,7 +209,7 @@ export let createPostQuantumTransaction = async(web1337,originShard,sigType,your
 
     let funcRef = sigType === 'bliss' ? crypto.pqc.bliss : crypto.pqc.dilithium
 
-    transaction.sig = await funcRef.signData(yourPrivateKey,web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee)
+    transaction.sig = await funcRef.signData(yourPrivateKey,web1337.currentChain+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee)
 
     // Return signed transaction
     return transaction

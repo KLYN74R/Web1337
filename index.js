@@ -26,17 +26,25 @@
 
     Only general API & functionality present here. We'll extend abilities via modules & other packages and so on
 
-    You can also use web3.js EVM-compatible API with symbiotes that supports KLY-EVM
+    You can also use web3.js EVM-compatible API with blockchains in KLY ecosystem that supports KLY-EVM
 
 
 */
 
-import * as epochEdgeOpsApi from './api/epoch_edge_operations_api.js'
-import * as smartContractsApi from './api/smart_contract_api.js'
+import * as smartContractsApi from './src/smart_contract_api.js'
+
+import * as txsCreation from './src/txs_creation.js'
+
 import crypto from './crypto_primitives/crypto.js'
-import * as txsCreation from './txs_creation.js'
+
 import {hash} from 'blake3-wasm'
+
 import fetch from 'node-fetch'
+
+
+
+
+
 
 
 
@@ -57,8 +65,6 @@ const TX_TYPES = {
     WVM_CONTRACT_DEPLOY:'WVM_CONTRACT_DEPLOY', // deployment of WASM contact to KLY-WVM 
     WVM_CALL:'WVM_CALL', // call the WASM contact to KLY-WVM
     EVM_CALL:'EVM_CALL', // call the KLY-EVM
-    MIGRATE_BETWEEN_ENV:'MIGRATE_BETWEEN_ENV' // to move KLY coins from KLY-WVM to KLY-EVM and vice versa 
-
 }
 
 const SIGNATURES_TYPES = {
@@ -71,20 +77,10 @@ const SIGNATURES_TYPES = {
 
 }
 
-const EPOCH_EDGE_OPERATIONS = {
-
-    VERSION_UPDATE:'VERSION_UPDATE',
-    SLASH_UNSTAKE:'SLASH_UNSTAKE',
-    REMOVE_FROM_WAITING_ROOM:'REMOVE_FROM_WAITING_ROOM',
-    WORKFLOW_UPDATE:'WORKFLOW_UPDATE',
-    UPDATE_RUBICON:'UPDATE_RUBICON',
-    STAKING_CONTRACT_CALL:'STAKING_CONTRACT_CALL'
-
-}
 
 
 
-export {TX_TYPES,SIGNATURES_TYPES,EPOCH_EDGE_OPERATIONS}
+export {TX_TYPES,SIGNATURES_TYPES}
 
 export {crypto}
 
@@ -93,16 +89,16 @@ export default class {
 
     /**
      * 
-     * @param {String} [options.symbioteID] identificator of KLY symbiote to work with
-     * @param {Number} [options.workflowVersion] identificator of appropriate version of symbiote's workflow
+     * @param {String} [options.chainID] identificator of KLY chain to work with
+     * @param {Number} [options.workflowVersion] identificator of appropriate version of chain's workflow
      * @param {String} [options.nodeURL] endpoint of node to interact with
      * @param {String} [options.proxyURL] HTTP(s) / SOCKS proxy url
      * 
      * 
      */
-    constructor(options = {symbioteID,workflowVersion,nodeURL,proxyURL}){
+    constructor(options = {chainID,workflowVersion,nodeURL,proxyURL}){
 
-        let {symbioteID,workflowVersion,nodeURL,proxyURL} = options;
+        let {chainID,workflowVersion,nodeURL,proxyURL} = options;
 
         if(proxyURL === 'string'){
 
@@ -112,13 +108,14 @@ export default class {
 
         }
 
-        this.symbiotes = new Map() // symbioteID => {nodeURL,workflowVersion}
+        this.chains = new Map() // chainID => {nodeURL,workflowVersion}
 
 
-        //Set the initial values
-        this.currentSymbiote = symbioteID
+        // Set the initial values
 
-        this.symbiotes.set(symbioteID,{nodeURL,workflowVersion})
+        this.currentChain = chainID
+
+        this.chains.set(chainID,{nodeURL,workflowVersion})
 
     }
 
@@ -128,7 +125,7 @@ export default class {
 
     getRequestToNode=url=>{
 
-        let {nodeURL} = this.symbiotes.get(this.currentSymbiote)
+        let {nodeURL} = this.chains.get(this.currentChain)
 
         return fetch(nodeURL+url,{agent:this.proxy}).then(r=>r.json()).catch(error=>error)
 
@@ -137,7 +134,7 @@ export default class {
 
     postRequestToNode=(url,payload)=>{
 
-        let {nodeURL} = this.symbiotes.get(this.currentSymbiote)
+        let {nodeURL} = this.chains.get(this.currentChain)
 
         return fetch(nodeURL+url,{
 
@@ -268,11 +265,11 @@ export default class {
 
     }
 
-    //_________________ MUTUALISM(cross-symbiotic interaction) _______________
+    //_________________ MUTUALISM _______________
 
-    addSymbioticChain=(symbioticChainID,workflowVersion,nodeURL)=>this.symbiotes.set(symbioticChainID,{nodeURL,workflowVersion})
+    addChain=(chainID,workflowVersion,nodeURL)=>this.chains.set(chainID,{nodeURL,workflowVersion})
 
-    changeCurrentSymbioticChain=symbioteID=>this.currentSymbiote=symbioteID
+    changeCurrentChain=chainID=>this.currentChain=chainID
 
 
 }

@@ -1,4 +1,4 @@
-import {getTransactionTemplate} from "../txs_creation.js"
+import {getTransactionTemplate} from "./txs_creation.js"
 
 import crypto from '../crypto_primitives/crypto.js'
 
@@ -47,7 +47,7 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
  
 */
 
-    let workflowVersion = web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion
+    let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
 
     let payload = {
 
@@ -62,7 +62,7 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
 
     contractDeploymentTxTemplate.payload.type = sigType
 
-    let dataToSign = web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.WVM_CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
+    let dataToSign = web1337.currentChain+workflowVersion+originShard+TX_TYPES.WVM_CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
 
 
     if(sigType==='D') contractDeploymentTxTemplate.sig = await crypto.ed25519.signEd25519(dataToSign,yourPrivateKey)
@@ -110,7 +110,7 @@ Full transaction which contains method call of some smart contract must have suc
  
 */
 
-    let workflowVersion = web1337.symbiotes.get(web1337.currentSymbiote).workflowVersion
+    let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
 
     let payload = {
 
@@ -127,7 +127,7 @@ Full transaction which contains method call of some smart contract must have suc
 
     contractCallTxTemplate.payload.type = sigType
 
-    let dataToSign = web1337.currentSymbiote+workflowVersion+originShard+TX_TYPES.WVM_CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
+    let dataToSign = web1337.currentChain+workflowVersion+originShard+TX_TYPES.WVM_CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
 
 
     if(sigType==='D') contractCallTxTemplate.sig = await crypto.ed25519.signEd25519(dataToSign,yourPrivateKey)
