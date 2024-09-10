@@ -170,6 +170,7 @@ export default class {
 
     getLatestNBlocksOnShard=(shard,startIndex,limit)=>this.getRequestToNode(`/latest_n_blocks/${shard}/${startIndex}/${limit}`)
     
+    getTotalBlocksAndTxsStats=()=>this.getRequestToNode(`/total_blocks_and_txs_stats`)
 
 
 
@@ -181,17 +182,20 @@ export default class {
 
     getEpochDataByEpochIndex=epochIndex=>this.getRequestToNode(`/epoch_by_index/${epochIndex}`)
 
-
+    getTotalBlocksAndTxsStatsPerEpoch=epochIndex=>this.getRequestToNode(`/total_blocks_and_txs_stats_per_epoch/${epochIndex}`)
 
 
     //_______________________State data API____________________
 
-    getDataFromState=(shard,cellID)=>this.getRequestToNode(`/state/${shard}/${cellID}`)
+    getFromStateByCellID=(shard,cellID)=>this.getRequestToNode(`/state/${shard}/${cellID}`)
 
     getTransactionReceiptById=txID=>this.getRequestToNode('/tx_receipt/'+txID)
 
     getPoolStats=poolID=>this.getRequestToNode('/pool_stats/'+poolID)
 
+    getTransactionsWithAccount=(shardID,accountID)=>this.getRequestToNode(`/txs_list/${shardID}/${accountID}`)
+
+    getAccount=(shardID,accountID)=>this.getRequestToNode(`/account/${shardID}/${accountID}`)
 
 
 
@@ -251,10 +255,6 @@ export default class {
     // stakeToPool=async()=>{}
 
     // unstakefromPool=async()=>{}
-
-    //_________________________ EPOCH EDGE OPERATIONS _________________________
-
-    createEpochEdgeOperation=(type,payload)=>epochEdgeOpsApi.createEpochEdgeOperation(this,type,payload)
 
     getQuorumApprovementsOfEpochEdgeOperations=epochEdgeOperation=>{
 
