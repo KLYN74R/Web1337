@@ -1,6 +1,7 @@
 import Web1337, {SIGNATURES_TYPES,TX_TYPES} from '../index.js'
 
 import crypto from '../crypto_primitives/crypto.js'
+
 import bls from '../crypto_primitives/bls.js'
 
 
@@ -46,33 +47,23 @@ export let getTransactionTemplate=(workflowVersion,creator,txType,sigType,nonce,
 }
 
 
+
 // Transactions. Default, Multisig, Threshold, Post-quantum
 
 /**
  * 
  * @param {Web1337} web1337 
  */
-export let createDefaultTransaction=async(web1337,originShard,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>{
+export let createEd25519Transaction=(web1337,originShard,txType,yourAddress,yourPrivateKey,nonce,fee,payload)=>{
 
     let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
-    
-    let payload={
 
-        to:recipient,
+    let transaction = getTransactionTemplate(workflowVersion,yourAddress,txType,SIGNATURES_TYPES.DEFAULT,nonce,fee,payload)
 
-        amount:amountInKLY
-        
-    }
-
-    // Reverse threshold should be set if recipient is a multisig address
-    if(typeof rev_t === 'number') payload.rev_t = rev_t
-
-
-    let transaction = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.TX,SIGNATURES_TYPES.DEFAULT,nonce,fee,payload)
-
-    transaction.sig = await crypto.ed25519.signEd25519(web1337.currentChain+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
+    transaction.sig = crypto.ed25519.signEd25519(web1337.currentChain+workflowVersion+originShard+txType+JSON.stringify(payload)+nonce+fee,yourPrivateKey)
 
     // Return signed transaction
+
     return transaction
 
 }
@@ -83,26 +74,11 @@ export let createDefaultTransaction=async(web1337,originShard,yourAddress,yourPr
  * 
  * @param {Web1337} web1337 
  */
-export let signDataForMultisigTransaction=(web1337,originShard,blsPrivateKey,aggregatedPubOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
+export let signDataForMultisigTransaction=(web1337,originShard,txType,blsPrivateKey,nonce,fee,payload)=>{
 
     let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
-    
-    let payload={
 
-        active:aggregatedPubOfActive,
-
-        afk:afkSigners,
-
-        to:recipient,
-
-        amount:amountInKLY
-        
-    }
-
-    // Reverse threshold should be set if recipient is a multisig address
-    if(typeof rev_t==='number') payload.rev_t=rev_t
-
-    let dataToSign = web1337.currentChain+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee
+    let dataToSign = web1337.currentChain+workflowVersion+originShard+txType+JSON.stringify(payload)+nonce+fee
 
     let singleSigna = bls.singleSig(dataToSign,blsPrivateKey)
 
@@ -116,26 +92,11 @@ export let signDataForMultisigTransaction=(web1337,originShard,blsPrivateKey,agg
  * 
  * @param {Web1337} web1337 
  */
-export let createMultisigTransaction=async(web1337,rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
+export let createMultisigTransaction=async(web1337,txType,rootPubKey,aggregatedSignatureOfActive,nonce,fee,payload)=>{
 
     let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
-    
-    let payload={
 
-        active:aggregatedPubOfActive,
-
-        afk:afkSigners,
-
-        to:recipient,
-
-        amount:amountInKLY
-        
-    }
-
-    // Reverse threshold should be set if recipient is a multisig address
-    if(typeof rev_t==='number') payload.rev_t=rev_t
-
-    let multisigTransaction = getTransactionTemplate(workflowVersion,rootPubKey,TX_TYPES.TX,SIGNATURES_TYPES.MULTISIG,nonce,fee,payload)
+    let multisigTransaction = getTransactionTemplate(workflowVersion,rootPubKey,txType,SIGNATURES_TYPES.MULTISIG,nonce,fee,payload)
 
     multisigTransaction.sig = aggregatedSignatureOfActive
 
@@ -148,21 +109,11 @@ export let createMultisigTransaction=async(web1337,rootPubKey,aggregatedPubOfAct
  * 
  * @param {Web1337} web1337 
  */
-export let buildPartialSignatureWithTxData=async(web1337,hexID,sharedPayload,originShard,nonce,fee,recipient,amountInKLY,rev_t)=>{
+export let buildPartialSignatureWithTxData=(web1337,originShard,txType,hexID,sharedPayload,nonce,fee,payloadForTblsTransaction)=>{
 
     let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
 
-    let payloadForTblsTransaction = {
-
-        to:recipient,
-
-        amount:amountInKLY
-
-    }
-
-    if(typeof rev_t==='number') payloadForTblsTransaction.rev_t = rev_t
-
-    let dataToSign = web1337.currentChain+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payloadForTblsTransaction)+nonce+fee
+    let dataToSign = web1337.currentChain+workflowVersion+originShard+txType+JSON.stringify(payloadForTblsTransaction)+nonce+fee
 
     let partialSignature = crypto.tbls.signTBLS(hexID,sharedPayload,dataToSign)
         
@@ -177,18 +128,7 @@ export let buildPartialSignatureWithTxData=async(web1337,hexID,sharedPayload,ori
  * 
  * @param {Web1337} web1337 
  */
-export let createThresholdTransaction = async(web1337,tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)=>{
-    
-    let tblsPayload = {
-    
-        to:recipient,
-    
-        amount:amountInKLY
-        
-    }
-    
-    if(typeof rev_t==='number') tblsPayload.rev_t = rev_t
-
+export let createThresholdTransaction = (web1337,txType,tblsRootPubkey,partialSignaturesArray,nonce,fee,tblsPayload) => {
 
     let thresholdSigTransaction = getTransactionTemplate(
             
@@ -196,7 +136,7 @@ export let createThresholdTransaction = async(web1337,tblsRootPubkey,partialSign
             
         tblsRootPubkey,
             
-        TX_TYPES.TX,
+        txType,
 
         SIGNATURES_TYPES.TBLS,
             
@@ -217,32 +157,21 @@ export let createThresholdTransaction = async(web1337,tblsRootPubkey,partialSign
  * 
  * @param {Web1337} web1337
  */
-export let createPostQuantumTransaction = async(web1337,originShard,pqcAlgorithm,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)=>{
+export let createPostQuantumTransaction = (web1337,originShard,txType,pqcAlgorithm,yourAddress,yourPrivateKey,nonce,fee,payload)=>{
 
     let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
-    
-    let payload={
-            
-        to:recipient,
-
-        amount:amountInKLY
-        
-    }
-
-    // Reverse threshold should be set if recipient is a multisig address
-    if(typeof rev_t === 'number') payload.rev_t = rev_t
-
 
     let sigTypeToAddToTx = pqcAlgorithm === 'bliss' ? SIGNATURES_TYPES.POST_QUANTUM_BLISS : SIGNATURES_TYPES.POST_QUANTUM_DIL
 
-    let transaction = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.TX,sigTypeToAddToTx,nonce,fee,payload)
+    let transaction = getTransactionTemplate(workflowVersion,yourAddress,txType,sigTypeToAddToTx,nonce,fee,payload)
 
     let funcRef = pqcAlgorithm === 'bliss' ? crypto.pqc.bliss : crypto.pqc.dilithium
 
 
-    transaction.sig = await funcRef.signData(yourPrivateKey,web1337.currentChain+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee)
+    transaction.sig = funcRef.signData(yourPrivateKey,web1337.currentChain+workflowVersion+originShard+txType+JSON.stringify(payload)+nonce+fee)
 
     // Return signed transaction
+
     return transaction
 
 }

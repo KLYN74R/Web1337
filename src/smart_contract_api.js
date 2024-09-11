@@ -90,7 +90,7 @@ Full transaction which contains method call of some smart contract must have suc
 {
     v: 0,
     creator: '2VEzwUdvSRuv1k2JaAEaMiL7LLNDTUf9bXSapqccCcSb',
-    type: 'CONTRACT_CALL',
+    type: 'WVM_CALL',
     nonce: 0,
     fee: 1,
     payload:{

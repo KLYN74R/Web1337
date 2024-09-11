@@ -43,17 +43,9 @@ export default {
         
         signEd25519:(data,privateKeyAsBase64)=>{
 
-            return new Promise((resolve, reject) => {
+            const privateKeyPem = `-----BEGIN PRIVATE KEY-----\n${privateKeyAsBase64}\n-----END PRIVATE KEY-----`
 
-                const privateKeyPem = `-----BEGIN PRIVATE KEY-----\n${privateKeyAsBase64}\n-----END PRIVATE KEY-----`
-        
-                crypto.sign(null, Buffer.from(data), privateKeyPem, (error, signature) => {
-        
-                    error ? reject('') : resolve(signature.toString('base64'))
-        
-                })
-        
-            }).catch(() => '')
+            return crypto.sign(null, Buffer.from(data), privateKeyPem).toString('base64')
 
         },
     

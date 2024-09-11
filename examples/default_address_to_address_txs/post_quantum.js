@@ -1,7 +1,6 @@
 import Web1337 from '../../index.js';
 
 
-
 let web1337 = new Web1337({
 
     chainID:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -32,7 +31,7 @@ let blissKeyPair = {
 
 
 
-const shard = '9GQ46rqY238rk2neSwgidap9ww5zbAN4dyqyC7j5ZnBK';
+const shardID = 'shard_0';
 
 const recipient = 'nXSYHp74u88zKPiRi7t22nv4WCBHXUBpGrVw3V93f2s';
 
@@ -42,9 +41,19 @@ const fee = 1;
 
 const amountInKLY = 13.37;
 
+const txType = 'TX'
 
 
-let signedDilithiumTx = await web1337.createPostQuantumTransaction(shard,'dilithium',dilithiumKeyPair.address,dilithiumKeyPair.prv,nonce,recipient,amountInKLY,fee);
+let payload={
+            
+    to:recipient,
+
+    amount:amountInKLY
+    
+}
+
+
+let signedDilithiumTx = web1337.createPostQuantumTransaction(shardID,txType,'dilithium',dilithiumKeyPair.address,dilithiumKeyPair.prv,nonce,fee,payload);
 
 
 console.log('\n===================== Transaction with Dilithium signature =====================\n');
@@ -55,17 +64,17 @@ console.log('\n===================== Transaction with BLISS signature ==========
 
 // Or BLISS
 
-let signedBlissTx = await web1337.createPostQuantumTransaction(shard,'bliss',blissKeyPair.address,blissKeyPair.prv,nonce,recipient,amountInKLY,fee);
+let signedBlissTx = web1337.createPostQuantumTransaction(shardID,txType,'bliss',blissKeyPair.address,dilithiumKeyPair.prv,nonce,fee,payload);
 
 console.log(signedBlissTx);
 
 
-await web1337.sendTransaction(signedDilithiumTx)
+// await web1337.sendTransaction(signedDilithiumTx)
 
-await web1337.sendTransaction(signedBlissTx)
+// await web1337.sendTransaction(signedBlissTx)
 
 
 // and get the receipt later. Reminder - id of tx and receipt is 256-bit BLAKE3 hash of transaction signature
 
-let receipt1 = await web1337.getTransactionReceiptById(web1337.blake3(signedDilithiumTx))
-let receipt2 = await web1337.getTransactionReceiptById(web1337.blake3(signedBlissTx))
+// let receipt1 = await web1337.getTransactionReceiptById(web1337.blake3(signedDilithiumTx))
+// let receipt2 = await web1337.getTransactionReceiptById(web1337.blake3(signedBlissTx))
