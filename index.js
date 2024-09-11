@@ -223,16 +223,43 @@ export default class {
 
     //_____________________________ TXS Creation _____________________________
 
-    createDefaultTransaction=(originShard,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>txsCreation.createDefaultTransaction(this,originShard,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)
+    createEd25519Transaction=(originShard,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)=>{
 
-    createMultisigTransaction=(rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>txsCreation.createMultisigTransaction(this,rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)
+        return txsCreation.createDefaultTransaction(this,originShard,yourAddress,yourPrivateKey,nonce,recipient,fee,amountInKLY,rev_t)
 
-    buildPartialSignatureWithTxData=(originShard,hexID,sharedPayload,nonce,fee,recipient,amountInKLY,rev_t)=>txsCreation.buildPartialSignatureWithTxData(this,hexID,sharedPayload,originShard,nonce,fee,recipient,amountInKLY,rev_t)
+    }
 
-    createThresholdTransaction=(tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)=>txsCreation.createThresholdTransaction(this,tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)
+    signDataForMultisigTransaction=(originShard,blsPrivateKey,aggregatedPubOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
 
-    createPostQuantumTransaction=(originShard,pqcAlgorithm,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)=>txsCreation.createPostQuantumTransaction(this,originShard,pqcAlgorithm,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)
+        return txsCreation.signDataForMultisigTransaction(this,originShard,blsPrivateKey,aggregatedPubOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)
 
+    }
+
+    createMultisigTransaction=(rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
+
+        return txsCreation.createMultisigTransaction(this,rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)
+
+    }
+
+    buildPartialSignatureWithTxData=(originShard,hexID,sharedPayload,nonce,fee,recipient,amountInKLY,rev_t)=>{
+
+        return txsCreation.buildPartialSignatureWithTxData(this,hexID,sharedPayload,originShard,nonce,fee,recipient,amountInKLY,rev_t)
+
+    }
+
+    createThresholdTransaction=(tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)=>{
+
+        return txsCreation.createThresholdTransaction(this,tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)
+
+    }
+    
+    createPostQuantumTransaction=(originShard,pqcAlgorithm,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)=>{
+    
+        return txsCreation.createPostQuantumTransaction(this,originShard,pqcAlgorithm,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)
+    
+    }
+
+    
     sendTransaction=(transaction)=>txsCreation.sendTransaction(this,transaction)
 
 

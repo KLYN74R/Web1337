@@ -83,7 +83,7 @@ export let createDefaultTransaction=async(web1337,originShard,yourAddress,yourPr
  * 
  * @param {Web1337} web1337 
  */
-export let signDataForMultisigTransaction=async(web1337,originShard,blsPrivateKey,aggregatedPubOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
+export let signDataForMultisigTransaction=(web1337,originShard,blsPrivateKey,aggregatedPubOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
 
     let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
     
@@ -104,7 +104,7 @@ export let signDataForMultisigTransaction=async(web1337,originShard,blsPrivateKe
 
     let dataToSign = web1337.currentChain+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee
 
-    let singleSigna = await bls.singleSig(dataToSign,blsPrivateKey)
+    let singleSigna = bls.singleSig(dataToSign,blsPrivateKey)
 
     return singleSigna
 
