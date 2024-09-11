@@ -1,6 +1,7 @@
 import Web1337, {SIGNATURES_TYPES,TX_TYPES} from '../index.js'
 
 import crypto from '../crypto_primitives/crypto.js'
+import bls from '../crypto_primitives/bls.js'
 
 
 
@@ -82,7 +83,7 @@ export let createDefaultTransaction=async(web1337,originShard,yourAddress,yourPr
  * 
  * @param {Web1337} web1337 
  */
-export let signDataForMultisigTransaction=async(web1337,rootPubKey,aggregatedPubOfActive,aggregatedSignatureOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
+export let signDataForMultisigTransaction=async(web1337,originShard,blsPrivateKey,aggregatedPubOfActive,afkSigners,nonce,fee,recipient,amountInKLY,rev_t)=>{
 
     let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
     
@@ -101,12 +102,11 @@ export let signDataForMultisigTransaction=async(web1337,rootPubKey,aggregatedPub
     // Reverse threshold should be set if recipient is a multisig address
     if(typeof rev_t==='number') payload.rev_t=rev_t
 
-    let multisigTransaction = getTransactionTemplate(workflowVersion,rootPubKey,TX_TYPES.TX,SIGNATURES_TYPES.MULTISIG,nonce,fee,payload)
+    let dataToSign = web1337.currentChain+workflowVersion+originShard+TX_TYPES.TX+JSON.stringify(payload)+nonce+fee
 
-    multisigTransaction.sig = aggregatedSignatureOfActive
+    let singleSigna = await bls.singleSig(dataToSign,blsPrivateKey)
 
-    // Return signed tx
-    return multisigTransaction
+    return singleSigna
 
 }
 
