@@ -37,11 +37,11 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
         nonce: 0,
         fee: 1,
         payload: {
-            type: 'D',
             bytecode:<hexString>,
             lang:<RUST|ASC>,
             constructorParams:[]
         },
+        sigType: 'D',
         sig: '5AGkLlK3knzYZeZwjHKPzlX25lPMd7nU+rR5XG9RZa3sDpYrYpfnzqecm5nNONnl5wDcxmjOkKMbO7ulAwTFDQ=='
     }
  
@@ -51,16 +51,13 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
 
     let payload = {
 
-        type:sigType,
         bytecode,
         lang,
         constructorParams
 
     }
 
-    let contractDeploymentTxTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.WVM_CONTRACT_DEPLOY,nonce,fee,payload)
-
-    contractDeploymentTxTemplate.payload.type = sigType
+    let contractDeploymentTxTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.WVM_CONTRACT_DEPLOY,sigType,nonce,fee,payload)
 
     let dataToSign = web1337.currentChain+workflowVersion+originShard+TX_TYPES.WVM_CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
 
@@ -105,6 +102,7 @@ Full transaction which contains method call of some smart contract must have suc
             imports:[] imports which should be included to contract instance to call. Example ['default.CROSS-CONTRACT','storage.GET_FROM_ARWEAVE']. As you understand, it's form like <MODULE_NAME>.<METHOD_TO_IMPORT>
         
     },
+    sigType'D',
     sig: '5AGkLlK3knzYZeZwjHKPzlX25lPMd7nU+rR5XG9RZa3sDpYrYpfnzqecm5nNONnl5wDcxmjOkKMbO7ulAwTFDQ=='
 }
  
@@ -114,18 +112,15 @@ Full transaction which contains method call of some smart contract must have suc
 
     let payload = {
 
-        type:sigType,
         contractID,
         method,
         gasLimit,
         params,
         injects
-
+        
     }
 
-    let contractCallTxTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.WVM_CALL,nonce,fee,payload)
-
-    contractCallTxTemplate.payload.type = sigType
+    let contractCallTxTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.WVM_CALL,sigType,nonce,fee,payload)
 
     let dataToSign = web1337.currentChain+workflowVersion+originShard+TX_TYPES.WVM_CONTRACT_DEPLOY+JSON.stringify(payload)+nonce+fee
 

@@ -231,7 +231,7 @@ export default class {
 
     createThresholdTransaction=(tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)=>txsCreation.createThresholdTransaction(this,tblsRootPubkey,partialSignaturesArray,nonce,recipient,amountInKLY,fee,rev_t)
 
-    createPostQuantumTransaction=(originShard,sigType,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)=>txsCreation.createPostQuantumTransaction(this,originShard,sigType,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)
+    createPostQuantumTransaction=(originShard,pqcAlgorithm,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)=>txsCreation.createPostQuantumTransaction(this,originShard,pqcAlgorithm,yourAddress,yourPrivateKey,nonce,recipient,amountInKLY,fee,rev_t)
 
     sendTransaction=(transaction)=>txsCreation.sendTransaction(this,transaction)
 
@@ -244,11 +244,9 @@ export default class {
 
     getContractStorage=(contractID,storageName)=>smartContractsApi.getContractStorage(this,contractID,storageName)
 
-    deployContractForWvm=bytecode=>smartContractsApi.createContractDeploymentTx(this,bytecode)
+    deployContractToWvm=bytecode=>smartContractsApi.createContractDeploymentTx(this,bytecode)
 
-    callContract=(contractID,method,params,injects)=>smartContractsApi.createContractCallTx(this,contractID,method,params,injects)
-
-    subscribeForEventsByContract=(contractID,eventID)=>smartContractsApi.subscribeForEventsByContract(this,contractID,eventID)
+    callWvmContract=(contractID,method,params,injects)=>smartContractsApi.createContractCallTx(this,contractID,method,params,injects)
 
     //_____________________________ STAKING LOGIC _____________________________
 
