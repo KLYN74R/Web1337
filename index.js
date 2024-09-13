@@ -209,6 +209,8 @@ export default class {
 
     getSynchronizationStatus=()=>this.getRequestToNode('/synchronization_stats')
 
+    getQuorumUrlsAndPubkeys=()=>this.getRequestToNode('/quorum_urls_and_pubkeys')
+
 
 
 
