@@ -1,5 +1,7 @@
 import Web1337 from '../../../../../../index.js';
 
+import fs from 'fs';
+
 
 let web1337 = new Web1337({
 
@@ -12,11 +14,11 @@ let web1337 = new Web1337({
 
 // console.log(await web1337.getQuorumUrlsAndPubkeys())
 
-
+let contractBytecode = fs.readFileSync('./examples/smart_contracts/kly_wvm/users_contracts/assemblyscript/simple_get_set_contract/contract.wasm').toString('hex');
 
 let payload = {
 
-    bytecode:'',
+    bytecode:contractBytecode,
 
     lang:'ASC',
 

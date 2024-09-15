@@ -166,7 +166,7 @@ export default class {
 
     getBlockByBlockID=blockID=>this.getRequestToNode('/block/'+blockID)
 
-    getBlockBySID=(shard,sid)=>this.getRequestToNode(`/block_by_sid/${shard}/${sid}`)
+    getBlockBySID=(shard,blockHeight)=>this.getRequestToNode(`/block_by_sid/${shard}/${blockHeight}`)
 
     getLatestNBlocksOnShard=(shard,startIndex,limit)=>this.getRequestToNode(`/latest_n_blocks/${shard}/${startIndex}/${limit}`)
     
@@ -269,9 +269,9 @@ export default class {
 
     //_________________________ Smart contracts API __________________________
 
-    getContractMetadata=contractID=>smartContractsApi.getContractMetadata(this,contractID)
+    getContractMetadata=(shardID,contractID)=>smartContractsApi.getContractMetadata(this,shardID,contractID)
 
-    getContractStorage=(contractID,storageName)=>smartContractsApi.getContractStorage(this,contractID,storageName)
+    getContractStorage=(shardID,contractID,storageName)=>smartContractsApi.getContractStorage(this,shardID,contractID,storageName)
 
     deployContractToWvm=bytecode=>smartContractsApi.createContractDeploymentTx(this,bytecode)
 
@@ -292,7 +292,7 @@ export default class {
 
     }
 
-    //_________________ MUTUALISM _______________
+    //_________________ To work with other chains _______________
 
     addChain=(chainID,workflowVersion,nodeURL)=>this.chains.set(chainID,{nodeURL,workflowVersion})
 
