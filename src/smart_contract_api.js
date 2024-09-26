@@ -38,7 +38,7 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
         fee: 1,
         payload: {
             bytecode:<hexString>,
-            lang:<RUST|ASC>,
+            lang:<Rust|AssemblyScript>,
             constructorParams:[]
         },
         sigType: 'D',
