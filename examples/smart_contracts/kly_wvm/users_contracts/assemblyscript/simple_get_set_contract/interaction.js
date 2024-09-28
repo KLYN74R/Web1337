@@ -5,7 +5,7 @@ let web1337 = new Web1337({
 
     chainID:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     workflowVersion:0,
-    nodeURL: 'http://localhost:7332'
+    nodeURL: 'http://localhost:7333'
 
 });
 
@@ -14,16 +14,17 @@ let web1337 = new Web1337({
 
 let payload = {
 
-    contractID:'',
+    contractID:'c7a50b4410f8249521993d2b30d319084fe0a367118bbbb96276da8e48ceab8b',
 
     method:'changeName',
 
     gasLimit:20_000_000,
 
-    params:[{name:"Name_2"}],
+    params:[{name:"Name_5"}],
 
-    imports:[]
+    imports:["getFromState","setToState"]
 }
+
 
 let keypair = {
     
@@ -36,12 +37,20 @@ let keypair = {
 
 const shardID = "shard_0"
 
-const fee = 0.03
+const fee = 2
 
-const nonce = 0
+const nonce = await web1337.getAccount(shardID,keypair.pub).then(account=>account.nonce+3)
 
 const txType = "WVM_CALL"
 
 let tx = web1337.createEd25519Transaction(shardID,txType,keypair.pub,keypair.prv,nonce,fee,payload)
 
 console.log(tx)
+
+web1337.sendTransaction(tx).then(()=>{
+
+    console.log('Sent')
+
+    console.log(`TX ID is => `,web1337.blake3(tx.sig))
+
+}).catch(err=>console.error('Error during contract deployment: ',err))

@@ -7,7 +7,7 @@ let web1337 = new Web1337({
 
     chainID:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     workflowVersion:0,
-    nodeURL: 'http://localhost:7332'
+    nodeURL: 'http://localhost:7333'
 
 });
 
@@ -20,7 +20,11 @@ let payload = {
     lang:'AssemblyScript',
 
     constructorParams:{
-        initStorage:{}
+        initStorage:{
+
+            nameHandler:{name:"Name_1"}
+
+        }
     }
 
 }
@@ -45,6 +49,7 @@ const txType = "WVM_CONTRACT_DEPLOY"
 let tx = web1337.createEd25519Transaction(shardID,txType,keypair.pub,keypair.prv,nonce,fee,payload)
 
 const contractID = web1337.blake3(shardID+tx.creator+tx.nonce)
+
 
 console.log('Contract ID: '+contractID)
 
