@@ -132,14 +132,14 @@ export default class {
     }
 
 
-    postRequestToNode=(url,payload)=>{
+    postRequestToNode=(url,bodyToSend)=>{
 
         let {nodeURL} = this.chains.get(this.currentChain)
 
         return fetch(nodeURL+url,{
 
             method:'POST',
-            body:JSON.stringify(payload),
+            body:JSON.stringify(bodyToSend),
             agent:this.proxy
 
         }).then(r=>r.json()).catch(error=>error)
@@ -273,9 +273,9 @@ export default class {
 
     getContractStorage=(shardID,contractID,storageName)=>smartContractsApi.getContractStorage(this,shardID,contractID,storageName)
 
-    deployContractToWvm=bytecode=>smartContractsApi.createContractDeploymentTx(this,bytecode)
+    deployContractToWvm=(shardID,yourAddress,yourPrivateKey,nonce,fee,sigType,bytecode,lang,constructorParams,addToPayload)=>smartContractsApi.createContractDeploymentTx(this,shardID,yourAddress,yourPrivateKey,nonce,fee,sigType,bytecode,lang,constructorParams,addToPayload)
 
-    callWvmContract=(contractID,method,params,injects)=>smartContractsApi.createContractCallTx(this,contractID,method,params,injects)
+    callWvmContract=(shardID,yourAddress,yourPrivateKey,nonce,fee,sigType,contractID,method,gasLimit,params,injects,addToPayload)=>smartContractsApi.createContractCallTx(this,shardID,yourAddress,yourPrivateKey,nonce,fee,sigType,contractID,method,gasLimit,params,injects,addToPayload)
 
     //_____________________________ STAKING LOGIC _____________________________
 

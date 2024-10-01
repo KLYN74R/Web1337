@@ -24,7 +24,7 @@ export let getContractStorage=async(web1337,shardID,contractID,storageName)=>web
  * 
  * @param {Web1337} web1337  
  */
-export let createContractDeploymentTx=async(web1337,originShard,yourAddress,yourPrivateKey,nonce,fee,sigType,bytecode,lang,constructorParams)=>{
+export let createContractDeploymentTx=async(web1337,originShard,yourAddress,yourPrivateKey,nonce,fee,sigType,bytecode,lang,constructorParams,addToPayload)=>{
 
 /*
 
@@ -53,8 +53,10 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
 
         bytecode,
         lang,
-        constructorParams
+        constructorParams,
 
+        ...addToPayload // to specify more options for parallel execution, account abstraction v2 and so on
+    
     }
 
     let contractDeploymentTxTemplate = getTransactionTemplate(workflowVersion,yourAddress,TX_TYPES.WVM_CONTRACT_DEPLOY,sigType,nonce,fee,payload)
@@ -81,7 +83,7 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
  * 
  * @param {Web1337} web1337  
  */
-export let createContractCallTx=async(web1337,originShard,yourAddress,yourPrivateKey,nonce,fee,sigType,contractID,method,gasLimit,params,injects)=>{
+export let createContractCallTx=async(web1337,originShard,yourAddress,yourPrivateKey,nonce,fee,sigType,contractID,method,gasLimit,params,injects,addToPayload)=>{
 
 /*
 
@@ -116,7 +118,9 @@ Full transaction which contains method call of some smart contract must have suc
         method,
         gasLimit,
         params,
-        injects
+        injects,
+
+        ...addToPayload // to specify more options for parallel execution, account abstraction v2 and so on
         
     }
 
