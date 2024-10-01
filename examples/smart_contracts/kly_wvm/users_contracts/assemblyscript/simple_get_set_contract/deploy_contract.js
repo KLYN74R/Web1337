@@ -7,7 +7,7 @@ let web1337 = new Web1337({
 
     chainID:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     workflowVersion:0,
-    nodeURL: 'http://localhost:7333'
+    nodeURL: 'http://localhost:7332'
 
 });
 
@@ -20,6 +20,7 @@ let payload = {
     lang:'AssemblyScript',
 
     constructorParams:{
+        
         initStorage:{
 
             nameHandler:{name:"Name_1"}

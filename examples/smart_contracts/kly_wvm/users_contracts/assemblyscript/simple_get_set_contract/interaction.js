@@ -5,7 +5,7 @@ let web1337 = new Web1337({
 
     chainID:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     workflowVersion:0,
-    nodeURL: 'http://localhost:7333'
+    nodeURL: 'http://localhost:7332'
 
 });
 
@@ -14,13 +14,13 @@ let web1337 = new Web1337({
 
 let payload = {
 
-    contractID:'c7a50b4410f8249521993d2b30d319084fe0a367118bbbb96276da8e48ceab8b',
+    contractID:'29160d1ec7b6dda560bf28b9f4b551c744d2db4f92fbaf4620e812105d253221',
 
     method:'changeName',
 
     gasLimit:20_000_000,
 
-    params:[{name:"Name_5"}],
+    params:{name:"Name_2"},
 
     imports:["getFromState","setToState"]
 }

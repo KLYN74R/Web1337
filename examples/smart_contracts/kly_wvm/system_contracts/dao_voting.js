@@ -22,23 +22,21 @@ let payload = {
 
     gasLimit:0,
     
-    params:[
+    params:{
 
-        {
-            votingType:'parameters',
+        votingType:'parameters',
 
-            paylaod:{
+        paylaod:{
 
-                updateField:'',
+            updateField:'',
 
-                newValue:''
+            newValue:''
 
-            },
+        },
 
-            quorumAgreements:{}
-        }
-
-    ],
+        quorumAgreements:{}
+    
+    },
 
     imports:[]
 

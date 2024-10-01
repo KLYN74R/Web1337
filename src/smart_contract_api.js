@@ -39,7 +39,7 @@ export let createContractDeploymentTx=async(web1337,originShard,yourAddress,your
         payload: {
             bytecode:<hexString>,
             lang:<Rust|AssemblyScript>,
-            constructorParams:[]
+            constructorParams:{}
         },
         sigType: 'D',
         sig: '5AGkLlK3knzYZeZwjHKPzlX25lPMd7nU+rR5XG9RZa3sDpYrYpfnzqecm5nNONnl5wDcxmjOkKMbO7ulAwTFDQ=='
@@ -98,7 +98,7 @@ Full transaction which contains method call of some smart contract must have suc
             contractID:<BLAKE3 hashID of contract OR alias of contract(for example, system contracts)>,
             method:<string method to call>,
             gasLimit:<maximum allowed in KLY to execute contract>
-            params:[] params to pass to function
+            params:{} params to pass to function
             imports:[] imports which should be included to contract instance to call. Example ['default.CROSS-CONTRACT','storage.GET_FROM_ARWEAVE']. As you understand, it's form like <MODULE_NAME>.<METHOD_TO_IMPORT>
         
     },
