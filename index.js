@@ -122,6 +122,9 @@ export default class {
 
     blake3=(input,length)=>hash(input,{length}).toString('hex')
 
+    fromKlyToWei=amountInKly=>amountInKly*10**18
+
+    fromWeiToKly=amountInWei=>amountInWei/10**18
 
     getRequestToNode=url=>{
 
