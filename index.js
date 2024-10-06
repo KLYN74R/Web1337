@@ -122,10 +122,6 @@ export default class {
 
     blake3=(input,length)=>hash(input,{length}).toString('hex')
 
-    fromKlyntarToSymbies=amountInKlyntares=>amountInKlyntares*10**6
-
-    fromSymbiesToKlyntar=amountInSymbies=>amountInSymbies/10**6
-
     getRequestToNode=url=>{
 
         let {nodeURL} = this.chains.get(this.currentChain)
