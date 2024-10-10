@@ -199,10 +199,8 @@ func generateEd25519Keypair(this js.Value, args []js.Value) interface{} {
 	// Start derivation from master private key
 	var childKey *bip32.Key = masterPrivateKey
 
-	for pathPart := range bip44DerivePath {
-
-		childKey, _ = childKey.NewChildKey(bip32.FirstHardenedChild + uint32(pathPart))
-
+	for _, pathPart := range bip44DerivePath {
+		childKey, _ = childKey.NewChildKey(bip32.FirstHardenedChild + pathPart)
 	}
 
 	// Now, based on this - get the appropriate keypair
