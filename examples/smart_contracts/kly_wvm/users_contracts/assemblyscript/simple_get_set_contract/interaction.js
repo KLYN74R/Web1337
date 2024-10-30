@@ -14,7 +14,7 @@ let web1337 = new Web1337({
 
 let payload = {
 
-    contractID:'29160d1ec7b6dda560bf28b9f4b551c744d2db4f92fbaf4620e812105d253221',
+    contractID:'97f1850172e063abe19c17efc6fb4a9af852cd40d15fb22bf3b168460affe950',
 
     method:'changeName',
 

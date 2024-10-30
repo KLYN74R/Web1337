@@ -1,6 +1,8 @@
-import Web1337 from '../../../../../../index.js';
+import Web1337,{crypto} from '../../../../../../index.js';
 
 import fs from 'fs';
+
+
 
 
 let web1337 = new Web1337({
@@ -52,9 +54,9 @@ let tx = web1337.createEd25519Transaction(shardID,txType,keypair.pub,keypair.prv
 const contractID = web1337.blake3(shardID+tx.creator+tx.nonce)
 
 
-console.log('Contract ID: '+contractID)
+console.log('Contract ID: 0x'+contractID)
 
-console.log(`Full contract ID: ${shardID}:${contractID}`)
+console.log(`Full contract ID: ${shardID}:0x${contractID}`)
 
 console.log(`TX ID is => `,web1337.blake3(tx.sig))
 
