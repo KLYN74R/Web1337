@@ -64,7 +64,7 @@ const TX_TYPES = {
     TX:'TX', // default address <=> address tx
     WVM_CONTRACT_DEPLOY:'WVM_CONTRACT_DEPLOY', // deployment of WASM contact to KLY-WVM 
     WVM_CALL:'WVM_CALL', // call the WASM contact to KLY-WVM
-    EVM_CALL:'EVM_CALL', // call the KLY-EVM
+
 }
 
 const SIGNATURES_TYPES = {
@@ -272,24 +272,6 @@ export default class {
 
     getContractStorage=(shardID,contractID,storageName)=>smartContractsApi.getContractStorage(this,shardID,contractID,storageName)
 
-    deployContractToWvm=(shardID,yourAddress,yourPrivateKey,nonce,fee,sigType,bytecode,lang,constructorParams,addToPayload)=>smartContractsApi.createContractDeploymentTx(this,shardID,yourAddress,yourPrivateKey,nonce,fee,sigType,bytecode,lang,constructorParams,addToPayload)
-
-    callWvmContract=(shardID,yourAddress,yourPrivateKey,nonce,fee,sigType,contractID,method,gasLimit,params,injects,addToPayload)=>smartContractsApi.createContractCallTx(this,shardID,yourAddress,yourPrivateKey,nonce,fee,sigType,contractID,method,gasLimit,params,injects,addToPayload)
-
-    //_____________________________ STAKING LOGIC _____________________________
-
-    // stakeToPool=async()=>{}
-
-    // unstakefromPool=async()=>{}
-
-    getQuorumApprovementsOfEpochEdgeOperations=epochEdgeOperation=>{
-
-        // 0. Ask for current quorum (web1337.getCurrentEpochOnThread('at'))
-        // 1. Get approvements (signatures) of epoch edge operation and aggregate it locally
-        // 2. Now when you have 2/3N+1 approvements - send it to /epoch_edge_operation_to_mempool
-        // 3. Transaction should be accepted now on the edge of current and the next epoch
-
-    }
 
     //_________________ To work with other chains _______________
 
