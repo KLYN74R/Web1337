@@ -71,7 +71,7 @@ const SIGNATURES_TYPES = {
     
     DEFAULT:'D',                    // Default ed25519
     TBLS:'T',                       // TBLS(threshold sig)
-    POST_QUANTUM_DIL:'P/D',         // Post-quantum Dilithium(2/3/5,2 used by default)
+    POST_QUANTUM_DILITHIUM:'P/D',   // Post-quantum Dilithium(2/3/5,2 used by default)
     POST_QUANTUM_BLISS:'P/B',       // Post-quantum BLISS
     MULTISIG:'M'                    // Multisig BLS
 

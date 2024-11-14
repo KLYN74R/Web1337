@@ -161,7 +161,7 @@ export let createPostQuantumTransaction = (web1337,originShard,txType,pqcAlgorit
 
     let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
 
-    let sigTypeToAddToTx = pqcAlgorithm === 'bliss' ? SIGNATURES_TYPES.POST_QUANTUM_BLISS : SIGNATURES_TYPES.POST_QUANTUM_DIL
+    let sigTypeToAddToTx = pqcAlgorithm === 'bliss' ? SIGNATURES_TYPES.POST_QUANTUM_BLISS : SIGNATURES_TYPES.POST_QUANTUM_DILITHIUM
 
     let transaction = getTransactionTemplate(workflowVersion,yourAddress,txType,sigTypeToAddToTx,nonce,fee,payload)
 
