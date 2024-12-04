@@ -192,7 +192,7 @@ export default class {
 
     getPoolStats=poolID=>this.getRequestToNode('/pool_stats/'+poolID)
 
-    getTransactionsByAccount=(shardID,accountID)=>this.getRequestToNode(`/txs_list/${shardID}/${accountID}`)
+    getTransactionsWithAccount=(shardID,accountID)=>this.getRequestToNode(`/txs_list/${shardID}/${accountID}`)
 
     getAccount=(shardID,accountID)=>this.getRequestToNode(`/account/${shardID}/${accountID}`)
 
