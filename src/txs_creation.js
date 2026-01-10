@@ -1,4 +1,4 @@
-import Web1337, {SIGNATURES_TYPES} from '../index.js'
+import {SIGNATURES_TYPES} from '../index.js'
 
 import crypto from '../crypto_primitives/crypto.js'
 
@@ -64,15 +64,15 @@ export let getTransactionTemplate=(workflowVersion,creator,txType,sigType,nonce,
 
 /**
  * 
- * @param {Web1337} web1337 
+ * @param {import('../index.js').default} jsSdk
  */
-export let createEd25519Transaction=(web1337,txType,yourAddress,yourPrivateKey,nonce,fee,payload)=>{
+export let createEd25519Transaction=(jsSdk,txType,yourAddress,yourPrivateKey,nonce,fee,payload)=>{
 
-    let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
+    let workflowVersion = jsSdk.chains.get(jsSdk.currentChain).workflowVersion
 
     let transaction = getTransactionTemplate(workflowVersion,yourAddress,txType,SIGNATURES_TYPES.DEFAULT,nonce,fee,payload)
 
-    transaction.sig = crypto.ed25519.signEd25519(web1337.currentChain+workflowVersion+txType+JSON.stringify(transaction.payload)+nonce+transaction.fee,yourPrivateKey)
+    transaction.sig = crypto.ed25519.signEd25519(jsSdk.currentChain+workflowVersion+txType+JSON.stringify(transaction.payload)+nonce+transaction.fee,yourPrivateKey)
 
     // Return signed transaction
 
@@ -84,15 +84,15 @@ export let createEd25519Transaction=(web1337,txType,yourAddress,yourPrivateKey,n
 
 /**
  * 
- * @param {Web1337} web1337 
+ * @param {import('../index.js').default} jsSdk
  */
-export let signDataForMultisigTransaction=(web1337,txType,blsPrivateKey,nonce,fee,payload)=>{
+export let signDataForMultisigTransaction=(jsSdk,txType,blsPrivateKey,nonce,fee,payload)=>{
 
-    let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
+    let workflowVersion = jsSdk.chains.get(jsSdk.currentChain).workflowVersion
 
     let txTemplate = getTransactionTemplate(workflowVersion,'',txType,SIGNATURES_TYPES.MULTISIG,nonce,fee,payload)
 
-    let dataToSign = web1337.currentChain+workflowVersion+txType+JSON.stringify(txTemplate.payload)+nonce+txTemplate.fee
+    let dataToSign = jsSdk.currentChain+workflowVersion+txType+JSON.stringify(txTemplate.payload)+nonce+txTemplate.fee
 
     let singleSigna = bls.singleSig(dataToSign,blsPrivateKey)
 
@@ -104,11 +104,11 @@ export let signDataForMultisigTransaction=(web1337,txType,blsPrivateKey,nonce,fe
 
 /**
  * 
- * @param {Web1337} web1337 
+ * @param {import('../index.js').default} jsSdk
  */
-export let createMultisigTransaction=async(web1337,txType,rootPubKey,aggregatedSignatureOfActive,nonce,fee,payload)=>{
+export let createMultisigTransaction=async(jsSdk,txType,rootPubKey,aggregatedSignatureOfActive,nonce,fee,payload)=>{
 
-    let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
+    let workflowVersion = jsSdk.chains.get(jsSdk.currentChain).workflowVersion
 
     let multisigTransaction = getTransactionTemplate(workflowVersion,rootPubKey,txType,SIGNATURES_TYPES.MULTISIG,nonce,fee,payload)
 
@@ -121,15 +121,15 @@ export let createMultisigTransaction=async(web1337,txType,rootPubKey,aggregatedS
 
 /**
  * 
- * @param {Web1337} web1337 
+ * @param {import('../index.js').default} jsSdk
  */
-export let buildPartialSignatureWithTxData=(web1337,txType,hexID,sharedPayload,nonce,fee,payloadForTblsTransaction)=>{
+export let buildPartialSignatureWithTxData=(jsSdk,txType,hexID,sharedPayload,nonce,fee,payloadForTblsTransaction)=>{
 
-    let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
+    let workflowVersion = jsSdk.chains.get(jsSdk.currentChain).workflowVersion
 
     let txTemplate = getTransactionTemplate(workflowVersion,'',txType,SIGNATURES_TYPES.TBLS,nonce,fee,payloadForTblsTransaction)
 
-    let dataToSign = web1337.currentChain+workflowVersion+txType+JSON.stringify(txTemplate.payload)+nonce+txTemplate.fee
+    let dataToSign = jsSdk.currentChain+workflowVersion+txType+JSON.stringify(txTemplate.payload)+nonce+txTemplate.fee
 
     let partialSignature = crypto.tbls.signTBLS(hexID,sharedPayload,dataToSign)
         
@@ -142,13 +142,13 @@ export let buildPartialSignatureWithTxData=(web1337,txType,hexID,sharedPayload,n
 
 /**
  * 
- * @param {Web1337} web1337 
+ * @param {import('../index.js').default} jsSdk
  */
-export let createThresholdTransaction = (web1337,txType,tblsRootPubkey,partialSignaturesArray,nonce,fee,tblsPayload) => {
+export let createThresholdTransaction = (jsSdk,txType,tblsRootPubkey,partialSignaturesArray,nonce,fee,tblsPayload) => {
 
     let thresholdSigTransaction = getTransactionTemplate(
             
-        web1337.chains.get(web1337.currentChain).workflowVersion,
+        jsSdk.chains.get(jsSdk.currentChain).workflowVersion,
             
         tblsRootPubkey,
             
@@ -171,11 +171,11 @@ export let createThresholdTransaction = (web1337,txType,tblsRootPubkey,partialSi
 
 /**
  * 
- * @param {Web1337} web1337
+ * @param {import('../index.js').default} jsSdk
  */
-export let createPostQuantumTransaction = (web1337,txType,pqcAlgorithm,yourAddress,yourPrivateKey,nonce,fee,payload)=>{
+export let createPostQuantumTransaction = (jsSdk,txType,pqcAlgorithm,yourAddress,yourPrivateKey,nonce,fee,payload)=>{
 
-    let workflowVersion = web1337.chains.get(web1337.currentChain).workflowVersion
+    let workflowVersion = jsSdk.chains.get(jsSdk.currentChain).workflowVersion
 
     let sigTypeToAddToTx = pqcAlgorithm === 'bliss' ? SIGNATURES_TYPES.POST_QUANTUM_BLISS : SIGNATURES_TYPES.POST_QUANTUM_DILITHIUM
 
@@ -184,7 +184,7 @@ export let createPostQuantumTransaction = (web1337,txType,pqcAlgorithm,yourAddre
     let funcRef = pqcAlgorithm === 'bliss' ? crypto.pqc.bliss : crypto.pqc.dilithium
 
 
-    transaction.sig = funcRef.signData(yourPrivateKey,web1337.currentChain+workflowVersion+txType+JSON.stringify(transaction.payload)+nonce+transaction.fee)
+    transaction.sig = funcRef.signData(yourPrivateKey,jsSdk.currentChain+workflowVersion+txType+JSON.stringify(transaction.payload)+nonce+transaction.fee)
 
     // Return signed transaction
 
@@ -195,7 +195,7 @@ export let createPostQuantumTransaction = (web1337,txType,pqcAlgorithm,yourAddre
 
 /**
  * 
- * @param {Web1337} web1137
+ * @param {import('../index.js').default} jsSdk
  * @returns 
  */
-export let sendTransaction = (web1137,transaction) => web1137.postRequestToNode('/transaction',transaction)
+export let sendTransaction = (jsSdk,transaction) => jsSdk.postRequestToNode('/transaction',transaction)

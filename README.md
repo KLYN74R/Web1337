@@ -1,6 +1,6 @@
 <div align="center">
 
-# **Wellcome to Web1337**
+# **Wellcome to js-sdk**
 
 ![cover](./cover.svg)
 
@@ -25,7 +25,7 @@ Currently supports only <code>dev_tachyon</code> workflow
 ## Installation
 
 ```shell
-pnpm install web1337
+pnpm add github:KlyntarNetwork/js-sdk
 ```
 
 

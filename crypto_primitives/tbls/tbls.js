@@ -22,12 +22,11 @@ export default {
         
         })
 
-        //Вот процесс генерации для участников - они могут это делать приватно у себя
-        //Generation process - signers can do it privately on theirs machines
+        // Generation process - signers can do it privately on their machines
         const {verificationVector,secretKeyContribution} = dkg.generateContribution(bls,signers.map(x=>x.id),threshold)
       
         //To transfer over network in hex
-        //Verification vector можем публиковать - для каждого в группе. Только запоминать порядок индексов
+        // Verification vector can be published for everyone in the group; just keep the index/order consistent
         let serializedVerificationVector=verificationVector.map(x=>x.serializeToHexStr())
         let serializedSecretKeyContribution=secretKeyContribution.map(x=>x.serializeToHexStr())
         let serializedId=signers[pubKeysArr.indexOf(myPubId)].id.serializeToHexStr()        
@@ -52,7 +51,7 @@ export default {
         let myId = bls.deserializeHexStrToSecretKey(hexMyId)
     
 
-        // Теперь когда нужный член групы получил этот secret sk,то он проверяет его по VSS с помощью verification vector of the sender и сохраняет его если всё ок
+        // After a group member receives this secret key share, they verify it via VSS using the sender's verification vector and store it if everything is OK
         const isVerified = dkg.verifyContributionShare(bls,myId,someSignerSecretKeyContribution,someSignerVerificationVector)
      
         return isVerified
@@ -90,11 +89,11 @@ export default {
 
     /*
 
-    На вход поступают данные вида
+    Input data format:
 
     {
 
-        hexMyId - id из первоначального массива signers из generateTBLS
+        hexMyId - id from the original signers array in generateTBLS
         sharedPayload:[
             {
                 verificationVector://VV of signer1 - array of hex values

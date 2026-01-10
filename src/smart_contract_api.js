@@ -1,26 +1,22 @@
-import Web1337 from "../index.js"
-
-
-
 /**
  * 
- * @param {Web1337} web1337  
+ * @param {import('../index.js').default} jsSdk
  */
-export let getContractMetadata=async(web1337,contractID)=>web1337.getRequestToNode(`/account/${contractID}`)
+export let getContractMetadata=async(jsSdk,contractID)=>jsSdk.getRequestToNode(`/account/${contractID}`)
 
 
 /**
  * 
- * @param {Web1337} web1337  
+ * @param {import('../index.js').default} jsSdk
  */
-export let getContractStorage=async(web1337,contractID,storageName)=>web1337.getRequestToNode(`/state/${contractID}_STORAGE_/${storageName}`)
+export let getContractStorage=async(jsSdk,contractID,storageName)=>jsSdk.getRequestToNode(`/state/${contractID}_STORAGE_/${storageName}`)
 
 
 
 /**
  * 
- * @param {Web1337} web1337
+ * @param {import('../index.js').default} jsSdk
  * @param {*} contractID
  * @param {*} eventID
  */
-export let subscribeForEventsByContract=async(web1337,contractID,eventID='ALL')=>{}
+export let subscribeForEventsByContract=async(jsSdk,contractID,eventID='ALL')=>{}
